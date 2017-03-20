@@ -33,44 +33,27 @@ func render(w http.ResponseWriter, tmpl string) {
 
 func ShowStat(w http.ResponseWriter, r *http.Request) {
 
-	//files, _ := filepath.Glob("*")
-	//fmt.Println(files) // contains a list of all files in the current directory
-	//now := strftime.Format("%Y-%m-%d", time.Now())
-	//получаем статистику за дату
-	//val, _ := tosserstat.Dates[now]
-	//сортируем папки по имени
-	//var keys []string
-	//for k := range val {
-	//	keys = append(keys, k)
-	//}
-	//sort.Strings(keys)
-	//render(w, "hello")
-	//for _, dir := range keys {
-	//	//статистика для каталога-источника
-	//	dirStat, ok := val[dir]
-	//	LastProcessingDateStr := "-"
-	//	if ok {
-	//		LastProcessingDateStr = strftime.Format("%H:%M:%S", time.Unix(dirStat.LastProcessingDate, 0))
-	//	}
-	//}
-
 	render(w, "header.html")
-	s:=table
-	io.WriteString(w, s)
+
+	table(w, "file/dir1")
+	table(w, "file/dir2")
+
 	render(w, "footer.html")
 }
 
-func table() {
-	listDir1 := listfiles("file/dir1")
+func table(w http.ResponseWriter, dir string) {
+	listDir1 := listfiles(dir)
 	for i := range listDir1 {
 		dir :=listDir1[i]
 		size := sizeFile(listDir1[i])
-		fmt.Sprintf("<tr>" +
+		str:=fmt.Sprintf("<tr>" +
 			"<td align=\"left\" style=\"width: 300px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 300px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 300px;\"><audio controls><source src=%s type=\"audio/mpeg\"></audio></td>" +
 			"</tr>", dir, size, "D:\\Music\\1.mp3")
+		io.WriteString(w, str)
 	}
+
 }
 
 func runHTTP() {
