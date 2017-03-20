@@ -8,16 +8,16 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"io"
 )
 
 func main() {
 	runHTTP()
 }
 
-type PageVariables struct{
-	Data string
-	size string
-}
+//type Post struct{
+//	Title string
+//}
 
 func render(w http.ResponseWriter, tmpl string) {
 	tmpl = fmt.Sprintf("templates/%s", tmpl)
@@ -54,12 +54,23 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 	//	}
 	//}
 
-	render(w, "hello.html")
-	size := sizeFile("file/1.mp3")
-	trs := fmt.Sprint("<tr><td>%s</td><td>\n",  size)
+	render(w, "header.html")
+	s:=table
+	io.WriteString(w, s)
+	render(w, "footer.html")
+}
 
-	fmt.Fprintf(w, trs)
-	//io.WriteString(w, trs)
+func table() {
+	listDir1 := listfiles("file/dir1")
+	for i := range listDir1 {
+		dir :=listDir1[i]
+		size := sizeFile(listDir1[i])
+		fmt.Sprintf("<tr>" +
+			"<td align=\"left\" style=\"width: 300px;\">%s</td>" +
+			"<td align=\"center\" style=\"width: 300px;\">%s</td>" +
+			"<td align=\"center\" style=\"width: 300px;\"><audio controls><source src=%s type=\"audio/mpeg\"></audio></td>" +
+			"</tr>", dir, size, "D:\\Music\\1.mp3")
+	}
 }
 
 func runHTTP() {
@@ -77,13 +88,6 @@ func convertSize(size int64) (string, error) {
 	return humanSize, nil
 }
 func sizeFile(path string) string {
-
-	//file, err := os.Open("file/1.txt")
-	//if err != nil {
-	//	return
-	//}
-	//defer file.Close()
-	//stat, err := os.Stat("file/1.mp3")
 
 	stat, err := os.Stat(path)
 	sizeStr, err := convertSize(stat.Size())
