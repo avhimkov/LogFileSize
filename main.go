@@ -15,10 +15,6 @@ func main() {
 	runHTTP()
 }
 
-//type Post struct{
-//	Title string
-//}
-
 func render(w http.ResponseWriter, tmpl string) {
 	tmpl = fmt.Sprintf("templates/%s", tmpl)
 	t, err := template.ParseFiles(tmpl)
@@ -33,32 +29,43 @@ func render(w http.ResponseWriter, tmpl string) {
 
 func ShowStat(w http.ResponseWriter, r *http.Request) {
 
+	dirOkno1:= "file/dir1"
+	//dirOkno2:= "file/dir2"
+	//dirOkno3:= "file/dir3"
+	//dirOkno4:= "file/dir4"
+	//dirOkno5:= "file/dir5"
+
 	render(w, "header.html")
-
-	table(w, "file/dir1")
-	table(w, "file/dir2")
-
+	table(w, dirOkno1)
 	render(w, "footer.html")
 }
 
 func table(w http.ResponseWriter, dir string) {
+
+	//fs := http.FileServer(http.Dir("./file"))
+	//http.Handle("/dir1/", http.StripPrefix("/dir1/", fs))
 	listDir1 := listfiles(dir)
+
 	for i := range listDir1 {
 		dir :=listDir1[i]
 		size := sizeFile(listDir1[i])
-		str:=fmt.Sprintf("<tr>" +
+		//strDir := strings.Replace(dir, "\\", "/", -1)
+		str:=fmt.Sprintf("<caption>%s</caption><tr>" +
 			"<td align=\"left\" style=\"width: 300px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 300px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 300px;\"><audio controls><source src=%s type=\"audio/mpeg\"></audio></td>" +
-			"</tr>", dir, size, "D:\\Music\\1.mp3")
+			"</tr>", listDir1, dir, size, dir)
 		io.WriteString(w, str)
 	}
-
 }
 
 func runHTTP() {
+	//fs := http.FileServer(http.Dir("./dir1/"))
+	//http.Handle("/dir1/", http.StripPrefix("/dir1/", fs))
 	http.HandleFunc("/", ShowStat)
+	log.Println("localhost:8080 Listening...")
 	http.ListenAndServe(":8080", nil)
+	//http.FileServer(http.Dir("./file"))
 }
 
 func convertSize(size int64) (string, error) {
