@@ -11,6 +11,10 @@ import (
 	"io"
 )
 
+type vars struct{
+	Dir string
+}
+
 func main() {
 	runHTTP()
 }
@@ -30,13 +34,17 @@ func render(w http.ResponseWriter, tmpl string) {
 func ShowStat(w http.ResponseWriter, r *http.Request) {
 
 	dirOkno1:= "file/dir1"
-	//dirOkno2:= "file/dir2"
+	dirOkno2:= "file/dir2"
 	//dirOkno3:= "file/dir3"
 	//dirOkno4:= "file/dir4"
 	//dirOkno5:= "file/dir5"
 
 	render(w, "header.html")
 	table(w, dirOkno1)
+	table(w, dirOkno2)
+	//table(w, dirOkno3)
+	//table(w, dirOkno4)
+	//table(w, dirOkno5)
 	render(w, "footer.html")
 }
 
@@ -44,17 +52,19 @@ func table(w http.ResponseWriter, dir string) {
 
 	//fs := http.FileServer(http.Dir("./file"))
 	//http.Handle("/dir1/", http.StripPrefix("/dir1/", fs))
+
 	listDir1 := listfiles(dir)
 
 	for i := range listDir1 {
-		dir :=listDir1[i]
+		dir := listDir1[i]
 		size := sizeFile(listDir1[i])
+
 		//strDir := strings.Replace(dir, "\\", "/", -1)
-		str:=fmt.Sprintf("<caption>%s</caption><tr>" +
+		str:=fmt.Sprintf("<tr>" +
 			"<td align=\"left\" style=\"width: 300px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 300px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 300px;\"><audio controls><source src=%s type=\"audio/mpeg\"></audio></td>" +
-			"</tr>", listDir1, dir, size, dir)
+			"</tr>", os.Stat(listDir1[i]), size, dir)
 		io.WriteString(w, str)
 	}
 }
