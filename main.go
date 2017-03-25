@@ -50,32 +50,26 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 
 func table(w http.ResponseWriter, dir string) {
 
-	//fs := http.FileServer(http.Dir("./file"))
-	//http.Handle("/dir1/", http.StripPrefix("/dir1/", fs))
-
 	listDir1 := listfiles(dir)
-
 	for i := range listDir1 {
 		dir := listDir1[i]
 		size := sizeFile(listDir1[i])
-
-		//strDir := strings.Replace(dir, "\\", "/", -1)
 		str:=fmt.Sprintf("<tr>" +
 			"<td align=\"left\" style=\"width: 300px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 300px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 300px;\"><audio controls><source src=%s type=\"audio/mpeg\"></audio></td>" +
-			"</tr>", os.Stat(listDir1[i]), size, dir)
+			"</tr>", dir, size, dir)
 		io.WriteString(w, str)
 	}
 }
 
 func runHTTP() {
-	//fs := http.FileServer(http.Dir("./dir1/"))
-	//http.Handle("/dir1/", http.StripPrefix("/dir1/", fs))
 	http.HandleFunc("/", ShowStat)
 	log.Println("localhost:8080 Listening...")
+	http.HandleFunc("/file/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, r.URL.Path[1:])
+	})
 	http.ListenAndServe(":8080", nil)
-	//http.FileServer(http.Dir("./file"))
 }
 
 func convertSize(size int64) (string, error) {
