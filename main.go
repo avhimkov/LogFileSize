@@ -46,21 +46,23 @@ func render(w http.ResponseWriter, tmpl string) {
 }
 
 func tableOkno(w http.ResponseWriter, okno string)  {
-	str := fmt.Sprintf("<tr><td colspan=\"3\" align=\"center\" style=\"width: 900px;\">%s</td></tr>", okno)
+	str := fmt.Sprintf("<tr><td colspan=\"4\" align=\"center\" style=\"width: 900px;\">%s</td></tr>", okno)
 	io.WriteString(w, str)
 	table(w, okno)
 }
 
 func table(w http.ResponseWriter, dir string) {
-
 	listDir1 := listfiles(dir)
+
 	for i := range listDir1 {
+		dcreat:=dataCreate(dir)
 		dir := listDir1[i]
 		size := sizeFile(listDir1[i])
 		str:=fmt.Sprintf("<tr><td align=\"left\" style=\"width: 300px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 300px;\">%s</td>" +
+			"<td align=\"center\" style=\"width: 300px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 300px;\"><audio controls><source src=%s type=\"audio/mpeg\"></audio></td>" +
-			"</tr>", dir, size, dir)
+			"</tr>", dir, dcreat, size, dir)
 		io.WriteString(w, str)
 	}
 }
@@ -82,6 +84,19 @@ func convertSize(size int64) (string, error) {
 	i := int(math.Log2(float64(size)) / 10)
 	humanSize := fmt.Sprintf("%d%s", size/int64(math.Pow(1024, float64(i))), sizeName[i])
 	return humanSize, nil
+}
+func dataCreate(path string) string {
+	file, err := os.Stat(path)
+	if err != nil {
+		fmt.Println(err)
+	}
+	modifiedtime := file.ModTime()
+	if err != nil {
+		fmt.Println(err)
+	}
+	modifiedtimef := modifiedtime.Format("2006-01-02 15:04:05")
+
+	return modifiedtimef
 }
 func sizeFile(path string) string {
 
