@@ -25,6 +25,14 @@ func main() {
 	runHTTP("/file/")
 }
 
+func ShowStat(w http.ResponseWriter, r *http.Request) {
+
+	render(w, "header.html")
+	tableOkno(w, Okno1)
+	tableOkno(w, Okno2)
+	render(w, "footer.html")
+}
+
 func render(w http.ResponseWriter, tmpl string) {
 	tmpl = fmt.Sprintf("templates/%s", tmpl)
 	t, err := template.ParseFiles(tmpl)
@@ -37,22 +45,10 @@ func render(w http.ResponseWriter, tmpl string) {
 	}
 }
 
-var titleOkno1 = "<tr><td colspan=\"3\" align=\"center\" style=\"width: 900px;\">"+ Okno1 +"</td></tr>"
-var titleOkno2 = "<tr><td colspan=\"3\" align=\"center\" style=\"width: 900px;\">"+ Okno2 +"</td></tr>"
-//var titleOkno1 = "<tr><td colspan=\"3\" align=\"center\" style=\"width: 900px;\">"+ Okno1 +"</td></tr>"
-//var titleOkno1 = "<tr><td colspan=\"3\" align=\"center\" style=\"width: 900px;\">"+ Okno1 +"</td></tr>"
-
-func ShowStat(w http.ResponseWriter, r *http.Request) {
-
-	render(w, "header.html")
-	io.WriteString(w, titleOkno1)
-	table(w, Okno1)
-	io.WriteString(w, titleOkno2)
-	table(w, Okno2)
-	//table(w, dirOkno3)
-	//table(w, dirOkno4)
-	//table(w, dirOkno5)
-	render(w, "footer.html")
+func tableOkno(w http.ResponseWriter, okno string)  {
+	str := fmt.Sprintf("<tr><td colspan=\"3\" align=\"center\" style=\"width: 900px;\">%s</td></tr>", okno)
+	io.WriteString(w, str)
+	table(w, okno)
 }
 
 func table(w http.ResponseWriter, dir string) {
