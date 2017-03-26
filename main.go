@@ -11,12 +11,18 @@ import (
 	"io"
 )
 
+var Okno1 = "file/dir1"
+var Okno2 = "file/dir2"
+//dirOkno3:= "file/dir3"
+//dirOkno4:= "file/dir4"
+//dirOkno5:= "file/dir5"
+
 type vars struct{
 	Dir string
 }
 
 func main() {
-	runHTTP()
+	runHTTP("/file/")
 }
 
 func render(w http.ResponseWriter, tmpl string) {
@@ -31,17 +37,18 @@ func render(w http.ResponseWriter, tmpl string) {
 	}
 }
 
+var titleOkno1 = "<tr><td colspan=\"3\" align=\"center\" style=\"width: 900px;\">"+ Okno1 +"</td></tr>"
+var titleOkno2 = "<tr><td colspan=\"3\" align=\"center\" style=\"width: 900px;\">"+ Okno2 +"</td></tr>"
+//var titleOkno1 = "<tr><td colspan=\"3\" align=\"center\" style=\"width: 900px;\">"+ Okno1 +"</td></tr>"
+//var titleOkno1 = "<tr><td colspan=\"3\" align=\"center\" style=\"width: 900px;\">"+ Okno1 +"</td></tr>"
+
 func ShowStat(w http.ResponseWriter, r *http.Request) {
 
-	dirOkno1:= "file/dir1"
-	dirOkno2:= "file/dir2"
-	//dirOkno3:= "file/dir3"
-	//dirOkno4:= "file/dir4"
-	//dirOkno5:= "file/dir5"
-
 	render(w, "header.html")
-	table(w, dirOkno1)
-	table(w, dirOkno2)
+	io.WriteString(w, titleOkno1)
+	table(w, Okno1)
+	io.WriteString(w, titleOkno2)
+	table(w, Okno2)
 	//table(w, dirOkno3)
 	//table(w, dirOkno4)
 	//table(w, dirOkno5)
@@ -54,8 +61,7 @@ func table(w http.ResponseWriter, dir string) {
 	for i := range listDir1 {
 		dir := listDir1[i]
 		size := sizeFile(listDir1[i])
-		str:=fmt.Sprintf("<tr>" +
-			"<td align=\"left\" style=\"width: 300px;\">%s</td>" +
+		str:=fmt.Sprintf("<tr><td align=\"left\" style=\"width: 300px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 300px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 300px;\"><audio controls><source src=%s type=\"audio/mpeg\"></audio></td>" +
 			"</tr>", dir, size, dir)
@@ -63,10 +69,10 @@ func table(w http.ResponseWriter, dir string) {
 	}
 }
 
-func runHTTP() {
+func runHTTP(dir string) {
 	http.HandleFunc("/", ShowStat)
 	log.Println("localhost:8080 Listening...")
-	http.HandleFunc("/file/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc(dir, func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
 	})
 	http.ListenAndServe(":8080", nil)
