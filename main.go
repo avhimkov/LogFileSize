@@ -9,10 +9,12 @@ import (
 	"os"
 	"path/filepath"
 	"io"
+	"time"
 )
 
 var Okno1 = "file/dir1"
 var Okno2 = "file/dir2"
+var day = time.Now().Local()
 //dirOkno3:= "file/dir3"
 //dirOkno4:= "file/dir4"
 //dirOkno5:= "file/dir5"
@@ -46,7 +48,7 @@ func render(w http.ResponseWriter, tmpl string) {
 }
 
 func tableOkno(w http.ResponseWriter, okno string)  {
-	str := fmt.Sprintf("<tr><td colspan=\"4\" align=\"center\" style=\"width: 900px;\">%s</td></tr>", okno)
+	str := fmt.Sprintf("<tr><td colspan=\"5\" align=\"center\" style=\"width: 900px;\">%s</td></tr>", okno)
 	io.WriteString(w, str)
 	table(w, okno)
 }
@@ -55,14 +57,16 @@ func table(w http.ResponseWriter, dir string) {
 	listDir1 := listfiles(dir)
 
 	for i := range listDir1 {
-		dcreat:=dataCreate(dir)
+		daysAgo := daysAgo(listDir1[i], day)
+		dcreat := dataCreate(listDir1[i])
 		dir := listDir1[i]
 		size := sizeFile(listDir1[i])
 		str:=fmt.Sprintf("<tr><td align=\"left\" style=\"width: 300px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 300px;\">%s</td>" +
+			"<td align=\"center\" style=\"width: 300px;\">%d дней</td>" +
 			"<td align=\"center\" style=\"width: 300px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 300px;\"><audio controls><source src=%s type=\"audio/mpeg\"></audio></td>" +
-			"</tr>", dir, dcreat, size, dir)
+			"</tr>", dir, dcreat, daysAgo, size, dir)
 		io.WriteString(w, str)
 	}
 }
@@ -98,12 +102,29 @@ func dataCreate(path string) string {
 
 	return modifiedtimef
 }
+
+func daysAgo(path string, now time.Time) int {
+	//now := time.Now().Local()
+	dataCreate(path)
+	file, err := os.Stat(path)
+	if err != nil {
+		fmt.Println(err)
+	}
+	modifiedtime := file.ModTime()
+	if err != nil {
+		fmt.Println(err)
+	}
+	diff := now.Sub(modifiedtime)
+	days := int(diff.Hours() / 24)
+	return days
+}
+
 func sizeFile(path string) string {
 
 	stat, err := os.Stat(path)
 	sizeStr, err := convertSize(stat.Size())
 	if err != nil {
-		sizeStr = "-"
+		fmt.Println(err)
 	}
 	return sizeStr
 }
