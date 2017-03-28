@@ -12,8 +12,8 @@ import (
 	"time"
 )
 
-var Okno1 = "file/dir1"
-var Okno2 = "file/dir2"
+var Okno1 = "file/Окно №1"
+var Okno2 = "file/Окно №2"
 var day = time.Now().Local()
 //dirOkno3:= "file/dir3"
 //dirOkno4:= "file/dir4"
@@ -48,7 +48,7 @@ func render(w http.ResponseWriter, tmpl string) {
 }
 
 func tableOkno(w http.ResponseWriter, okno string)  {
-	str := fmt.Sprintf("<tr><td colspan=\"5\" align=\"center\" style=\"width: 900px;\">%s</td></tr>", okno)
+	str := fmt.Sprintf("<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", okno)
 	io.WriteString(w, str)
 	table(w, okno)
 }
@@ -61,11 +61,11 @@ func table(w http.ResponseWriter, dir string) {
 		dcreat := dataCreate(listDir1[i])
 		dir := listDir1[i]
 		size := sizeFile(listDir1[i])
-		str:=fmt.Sprintf("<tr><td align=\"left\" style=\"width: 300px;\">%s</td>" +
-			"<td align=\"center\" style=\"width: 300px;\">%s</td>" +
-			"<td align=\"center\" style=\"width: 300px;\">%d дней</td>" +
-			"<td align=\"center\" style=\"width: 300px;\">%s</td>" +
-			"<td align=\"center\" style=\"width: 300px;\"><audio controls><source src=%s type=\"audio/mpeg\"></audio></td>" +
+		str:=fmt.Sprintf("<tr><td align=\"left\" style=\"width: 100px;\">%s</td>" +
+			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
+			"<td align=\"center\" style=\"width: 100px;\">%d дней</td>" +
+			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
+			"<td align=\"center\" style=\"width: 50px;\"><audio controls><source src=%s type=\"audio/mpeg\"></audio></td>" +
 			"</tr>", dir, dcreat, daysAgo, size, dir)
 		io.WriteString(w, str)
 	}
@@ -137,7 +137,7 @@ func listfiles(rootpath string) []string {
 		if info.IsDir() {
 			return nil
 		}
-		if filepath.Ext(path) == ".mp3" {
+		if filepath.Ext(path) == ".zip" {
 			list = append(list, path)
 		}
 		return nil
