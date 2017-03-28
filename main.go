@@ -14,8 +14,7 @@ import (
 	"archive/zip"
 )
 
-var Okno1 = "file/Окно №1"
-var Okno2 = "file/Окно №2"
+var Okno1 = "file/Окно №1/"
 var day = time.Now().Local()
 //dirOkno3:= "file/dir3"
 //dirOkno4:= "file/dir4"
@@ -33,7 +32,7 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 
 	render(w, "header.html")
 	tableOkno(w, Okno1)
-	tableOkno(w, Okno2)
+	//tableOkno(w, Okno2)
 	render(w, "footer.html")
 }
 
@@ -67,7 +66,7 @@ func table(w http.ResponseWriter, dir string) {
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">%d дней</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
-			"<td align=\"center\" style=\"width: 50px;\"><audio controls><source src=%s type=\"audio/mpeg\"></audio></td>" +
+			"<td align=\"center\" style=\"width: 50px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td>" +
 			"</tr>", dir, dcreat, daysAgo, size, dir)
 		io.WriteString(w, str)
 	}
@@ -139,7 +138,7 @@ func listfiles(rootpath string) []string {
 		if info.IsDir() {
 			return nil
 		}
-		if filepath.Ext(path) == ".zip" {
+		if filepath.Ext(path) == ".wav" {
 			list = append(list, path)
 		}
 		return nil
