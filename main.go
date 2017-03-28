@@ -14,8 +14,10 @@ import (
 	"archive/zip"
 )
 
-var Okno1 = "file/Окно №1/"
 var day = time.Now().Local()
+var Okno1 = "file/Окно№1/"
+var Okno2 = "file/Окно№2/"
+var temp = "file/temp/"
 //dirOkno3:= "file/dir3"
 //dirOkno4:= "file/dir4"
 //dirOkno5:= "file/dir5"
@@ -26,13 +28,16 @@ type vars struct{
 
 func main() {
 	runHTTP("/file/")
+	unzip(Okno1, "/file/temp")
 }
 
 func ShowStat(w http.ResponseWriter, r *http.Request) {
 
 	render(w, "header.html")
-	tableOkno(w, Okno1)
-	//tableOkno(w, Okno2)
+	tableOkno(w, Okno1, temp)
+	tabletemp(w, temp)
+	tableOkno(w, Okno2, temp)
+	tabletemp(w, temp)
 	render(w, "footer.html")
 }
 
@@ -48,26 +53,40 @@ func render(w http.ResponseWriter, tmpl string) {
 	}
 }
 
-func tableOkno(w http.ResponseWriter, okno string)  {
+func tableOkno(w http.ResponseWriter, okno string, temp string)  {
 	str := fmt.Sprintf("<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", okno)
 	io.WriteString(w, str)
-	table(w, okno)
+	table(w, okno, temp)
 }
 
-func table(w http.ResponseWriter, dir string) {
-	listDir1 := listfiles(dir)
+func table(w http.ResponseWriter, dirZip string, dirTemp string) {
+	listDirZip := listfiles(dirZip, ".zip")
+	//listDirTemp := listfiles(dirTemp, ".zip")
 
-	for i := range listDir1 {
-		daysAgo := daysAgo(listDir1[i], day)
-		dcreat := dataCreate(listDir1[i])
-		dir := listDir1[i]
-		size := sizeFile(listDir1[i])
+	for i := range listDirZip {
+		unzip(listDirZip[i], dirTemp + listDirZip[i])
+	}
+
+	for i := range listDirZip {
+		daysAgo := daysAgo(listDirZip[i], day)
+		dcreat := dataCreate(listDirZip[i])
+		dir := listDirZip[i]
+		size := sizeFile(listDirZip[i])
 		str:=fmt.Sprintf("<tr><td align=\"left\" style=\"width: 100px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">%d дней</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
-			"<td align=\"center\" style=\"width: 50px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td>" +
-			"</tr>", dir, dcreat, daysAgo, size, dir)
+			"<td align=\"center\" style=\"width: 100px;\">%s</td>", dir, dcreat, daysAgo, size)
+		io.WriteString(w, str)
+	}
+}
+
+func tabletemp(w http.ResponseWriter, dirTemp string)  {
+	listDirTemp := listfiles(dirTemp,".wav")
+	for i := range listDirTemp{
+		dir := listDirTemp[i]
+		str:=fmt.Sprintf("<td align=\"center\" style=\"width: 100px;\"><audio controls>" +
+			"<source src=%s type=\"audio/wav\"></audio></td>" +
+			"</tr>", dir)
 		io.WriteString(w, str)
 	}
 }
@@ -105,7 +124,6 @@ func dataCreate(path string) string {
 }
 
 func daysAgo(path string, now time.Time) int {
-	//now := time.Now().Local()
 	dataCreate(path)
 	file, err := os.Stat(path)
 	if err != nil {
@@ -130,7 +148,7 @@ func sizeFile(path string) string {
 	return sizeStr
 }
 
-func listfiles(rootpath string) []string {
+func listfiles(rootpath string, typefile string) []string {
 
 	list := make([]string, 0, 10)
 
@@ -138,7 +156,7 @@ func listfiles(rootpath string) []string {
 		if info.IsDir() {
 			return nil
 		}
-		if filepath.Ext(path) == ".wav" {
+		if filepath.Ext(path) == typefile {
 			list = append(list, path)
 		}
 		return nil
