@@ -22,22 +22,26 @@ var temp = "file/temp/"
 //dirOkno4:= "file/dir4"
 //dirOkno5:= "file/dir5"
 
-type vars struct{
-	Dir string
-}
+var templ = "<td align=\"center\" style=\"width: 100px;\"><audio controls>" +
+	"<source src= " + "" + "type=\"audio/wav\"></audio></td>" +
+	"</tr>"
+
+//type vars struct{
+//	Dir string
+//}
 
 func main() {
 	runHTTP("/file/")
-	unzip(Okno1, "/file/temp")
+	//unzip(Okno1, "/file/temp")
 }
 
 func ShowStat(w http.ResponseWriter, r *http.Request) {
 
 	render(w, "header.html")
 	tableOkno(w, Okno1, temp)
-	tabletemp(w, temp)
+	//tabletemp(w, temp)
 	tableOkno(w, Okno2, temp)
-	tabletemp(w, temp)
+	//tabletemp(w, temp)
 	render(w, "footer.html")
 }
 
@@ -75,21 +79,21 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 		str:=fmt.Sprintf("<tr><td align=\"left\" style=\"width: 100px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">%d дней</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">%s</td>", dir, dcreat, daysAgo, size)
+			"<td align=\"center\" style=\"width: 100px;\">%s</td>" + templ + "", dir, dcreat, daysAgo, size)
 		io.WriteString(w, str)
 	}
 }
 
-func tabletemp(w http.ResponseWriter, dirTemp string)  {
-	listDirTemp := listfiles(dirTemp,".wav")
-	for i := range listDirTemp{
-		dir := listDirTemp[i]
-		str:=fmt.Sprintf("<td align=\"center\" style=\"width: 100px;\"><audio controls>" +
-			"<source src=%s type=\"audio/wav\"></audio></td>" +
-			"</tr>", dir)
-		io.WriteString(w, str)
-	}
-}
+//func tabletemp(w http.ResponseWriter, dirTemp string)  {
+//	listDirTemp := listfiles(dirTemp,".wav")
+//	for i := range listDirTemp{
+//		dir := listDirTemp[i]
+//		str:=fmt.Sprintf("<td align=\"center\" style=\"width: 100px;\"><audio controls>" +
+//			"<source src=%s type=\"audio/wav\"></audio></td>" +
+//			"</tr>", dir)
+//		io.WriteString(w, str)
+//	}
+//}
 
 func runHTTP(dir string) {
 	http.HandleFunc("/", ShowStat)
