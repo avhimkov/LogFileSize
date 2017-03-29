@@ -11,17 +11,10 @@ import (
 	"io"
 	"time"
 	"archive/zip"
-	//"github.com/spf13/viper"
 	"github.com/spf13/viper"
 )
 
 var day = time.Now().Local()
-//var Okno1 = "file/Окно№1/"
-//var Okno2 = "file/Окно№2/"
-//var temp = "file/temp/"
-//dirOkno3:= "file/dir3"
-//dirOkno4:= "file/dir4"
-//dirOkno5:= "file/dir5"
 
 func main() {
 	runHTTP("/file/")
@@ -71,7 +64,6 @@ func tableOkno(w http.ResponseWriter, okno string, temp string)  {
 }
 
 func table(w http.ResponseWriter, dirZip string, dirTemp string) {
-
 	listDirZip := listfiles(dirZip, ".zip")
 
 	//listDirTemp := listfiles(dirTemp, ".wav")
@@ -97,17 +89,6 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 		io.WriteString(w, str)
 	}
 }
-
-//func tabletemp(w http.ResponseWriter, dirTemp string)  {
-//	listDirTemp := listfiles(dirTemp,".wav")
-//	for i := range listDirTemp{
-//		dir := listDirTemp[i]
-//		str:=fmt.Sprintf("<td align=\"center\" style=\"width: 100px;\"><audio controls>" +
-//			"<source src=%s type=\"audio/wav\"></audio></td>" +
-//			"</tr>", dir)
-//		io.WriteString(w, str)
-//	}
-//}
 
 func runHTTP(dir string) {
 	http.HandleFunc("/", ShowStat)
