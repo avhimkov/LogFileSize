@@ -21,13 +21,9 @@ var temp = "file/temp/"
 //dirOkno4:= "file/dir4"
 //dirOkno5:= "file/dir5"
 
-var templ = "<td align=\"center\" style=\"width: 100px;\"><audio controls>" +
-	"<source src= " + "" + "type=\"audio/wav\"></audio></td>" +
-	"</tr>"
-
-//type vars struct{
-//	Dir string
-//}
+type Media struct{
+	WavFile string
+}
 
 func main() {
 	runHTTP("/file/")
@@ -66,20 +62,29 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 	listDirZip := listfiles(dirZip, ".zip")
 	//listDirTemp := listfiles(dirTemp, ".zip")
 
-	for i := range listDirZip {
-		unzip(listDirZip[i], dirTemp + listDirZip[i])
-	}
+	//for i := range listDirZip {
+	//	unzip(listDirZip[i], dirTemp + listDirZip[i])
+	//}
+
+	//wav:=Media{"file/temp/14_20170328-00023_28-03-2017_10-12.wav"}
 
 	for i := range listDirZip {
-		daysAgo := daysAgo(listDirZip[i], day)
+
+		//daysAgo := daysAgo(listDirZip[i], day)
+
 		dcreat := dataCreate(listDirZip[i])
 		dir := listDirZip[i]
 		size := sizeFile(listDirZip[i])
-		str:=fmt.Sprintf("<tr><td align=\"left\" style=\"width: 100px;\">%s</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">%d дней</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">%s</td>" + templ + "", dir, dcreat, daysAgo, size)
-		io.WriteString(w, str)
+
+		fmt.Fprint(w,"<tr><td align=\"left\" style=\"width: 100px;\">" + dir + "</td>" +
+			"<td align=\"center\" style=\"width: 100px;\">" + dcreat + "</td>" +
+			"<td align=\"center\" style=\"width: 100px;\">" + "" + "дней</td>" +
+			"<td align=\"center\" style=\"width: 100px;\">" + size + "</td>" +
+			"<td align=\"center\" style=\"width: 100px;\"><audio controls>" +
+			"<source src=file/temp/14_20170328-00023_28-03-2017_10-12.wav type=\"audio/wav\"></audio></td>" +
+			"</tr>")
+		//, dir, dcreat, daysAgo, size, wav
+		//io.WriteString(w, str)
 	}
 }
 
