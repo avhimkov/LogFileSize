@@ -21,10 +21,6 @@ var temp = "file/temp/"
 //dirOkno4:= "file/dir4"
 //dirOkno5:= "file/dir5"
 
-type Media struct{
-	WavFile string
-}
-
 func main() {
 	runHTTP("/file/")
 	//unzip(Okno1, "/file/temp")
@@ -33,6 +29,7 @@ func main() {
 func ShowStat(w http.ResponseWriter, r *http.Request) {
 
 	render(w, "header.html")
+	render(w, "hello.html")
 	tableOkno(w, Okno1, temp)
 	//tabletemp(w, temp)
 	tableOkno(w, Okno2, temp)
@@ -60,13 +57,11 @@ func tableOkno(w http.ResponseWriter, okno string, temp string)  {
 
 func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 	listDirZip := listfiles(dirZip, ".zip")
-	//listDirTemp := listfiles(dirTemp, ".zip")
+	//listDirTemp := listfiles(dirTemp, ".wav")
 
 	//for i := range listDirZip {
 	//	unzip(listDirZip[i], dirTemp + listDirZip[i])
 	//}
-
-	//wav:=Media{"file/temp/14_20170328-00023_28-03-2017_10-12.wav"}
 
 	for i := range listDirZip {
 
@@ -76,12 +71,14 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 		dir := listDirZip[i]
 		size := sizeFile(listDirZip[i])
 
+		//fmt.Fprint(w, hello)
+
 		fmt.Fprint(w,"<tr><td align=\"left\" style=\"width: 100px;\">" + dir + "</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">" + dcreat + "</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">" + "" + "дней</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">" + size + "</td>" +
+			"<td align=\"center\" style=\"width: 100px;\">" + size + "</td>"+
 			"<td align=\"center\" style=\"width: 100px;\"><audio controls>" +
-			"<source src=file/temp/14_20170328-00023_28-03-2017_10-12.wav type=\"audio/wav\"></audio></td>" +
+			"<source src="+ dir +" type=\"audio/wav\"></audio></td>" +
 			"</tr>")
 		//, dir, dcreat, daysAgo, size, wav
 		//io.WriteString(w, str)
