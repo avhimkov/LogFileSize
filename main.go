@@ -11,28 +11,36 @@ import (
 	"io"
 	"time"
 	"archive/zip"
+	"github.com/spf13/viper"
 )
 
-var day = time.Now().Local()
-var Okno1 = "file/Окно№1/"
-var Okno2 = "file/Окно№2/"
-var temp = "file/temp/"
+//var day = time.Now().Local()
+//var Okno1 = "file/Окно№1/"
+//var Okno2 = "file/Окно№2/"
+//var temp = "file/temp/"
 //dirOkno3:= "file/dir3"
 //dirOkno4:= "file/dir4"
 //dirOkno5:= "file/dir5"
 
 func main() {
 	runHTTP("/file/")
-	//unzip(Okno1, "/file/temp")
+}
+
+func conf()  {
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
 }
 
 func ShowStat(w http.ResponseWriter, r *http.Request) {
+	conf()
+	temp := viper.GetString("temp.temp")
+	okno1 := viper.GetString("windows.okno1")
+	okno2 := viper.GetString("windows.okno2")
 
 	render(w, "header.html")
-	render(w, "hello.html")
-	tableOkno(w, Okno1, temp)
-	//tabletemp(w, temp)
-	tableOkno(w, Okno2, temp)
+	//render(w, "hello.html")
+	tableOkno(w, okno1, temp)
+	tableOkno(w, okno2, temp)
 	//tabletemp(w, temp)
 	render(w, "footer.html")
 }
@@ -57,6 +65,7 @@ func tableOkno(w http.ResponseWriter, okno string, temp string)  {
 
 func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 	listDirZip := listfiles(dirZip, ".zip")
+
 	//listDirTemp := listfiles(dirTemp, ".wav")
 
 	//for i := range listDirZip {
@@ -64,24 +73,20 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 	//}
 
 	for i := range listDirZip {
-
-		//daysAgo := daysAgo(listDirZip[i], day)
-
+		daysAgo := daysAgo(listDirZip[i], day)
 		dcreat := dataCreate(listDirZip[i])
 		dir := listDirZip[i]
 		size := sizeFile(listDirZip[i])
 
-		//fmt.Fprint(w, hello)
-
-		fmt.Fprint(w,"<tr><td align=\"left\" style=\"width: 100px;\">" + dir + "</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">" + dcreat + "</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">" + "" + "дней</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">" + size + "</td>"+
+		str := fmt.Sprintf("<tr><td align=\"left\" style=\"width: 100px;\">%s</td>" +
+			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
+			"<td align=\"center\" style=\"width: 100px;\">%d дней</td>" +
+			"<td align=\"center\" style=\"width: 100px;\">%s</td>"+
 			"<td align=\"center\" style=\"width: 100px;\"><audio controls>" +
-			"<source src="+ dir +" type=\"audio/wav\"></audio></td>" +
-			"</tr>")
-		//, dir, dcreat, daysAgo, size, wav
-		//io.WriteString(w, str)
+			"<source src=%s type=\"audio/wav\"></audio></td>" +
+			"</tr>", dir, dcreat, daysAgo, size, dir)
+
+		io.WriteString(w, str)
 	}
 }
 

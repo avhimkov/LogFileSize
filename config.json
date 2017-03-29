@@ -1,0 +1,12 @@
+{
+  "windows": {
+    "okno1": "file/Окно№1/",
+    "okno2": "file/Окно№2/"
+  },
+  "temp": {
+    "temp": "file/temp/"
+  },
+  "time": {
+    "day": "time.Now().Local()"
+  }
+}
