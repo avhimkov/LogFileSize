@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"io"
 	"time"
-	"strings"
 	"archive/zip"
 )
 
@@ -171,46 +170,39 @@ func listfiles(rootpath string, typefile string) []string {
 	return list
 }
 
-func unzip(src, dest string) error {
-	r, err := zip.OpenReader(src)
+func unzip(archive, target string) error {
+	reader, err := zip.OpenReader(archive)
 	if err != nil {
 		return err
 	}
-	defer r.Close()
 
-	for _, f := range r.File {
-		rc, err := f.Open()
+	if err := os.MkdirAll(target, 0755); err != nil {
+		return err
+	}
+
+	for _, file := range reader.File {
+		path := filepath.Join(target, file.Name)
+		if file.FileInfo().IsDir() {
+			os.MkdirAll(path, file.Mode())
+			continue
+		}
+
+		fileReader, err := file.Open()
 		if err != nil {
 			return err
 		}
-		defer rc.Close()
+		defer fileReader.Close()
 
-		fpath := filepath.Join(dest, f.Name)
-		if f.FileInfo().IsDir() {
-			os.MkdirAll(fpath, f.Mode())
-		} else {
-			var fdir string
-			if lastIndex := strings.LastIndex(fpath,string(os.PathSeparator)); lastIndex > -1 {
-				fdir = fpath[:lastIndex]
-			}
+		targetFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
+		if err != nil {
+			return err
+		}
+		defer targetFile.Close()
 
-			err = os.MkdirAll(fdir, f.Mode())
-			if err != nil {
-				log.Fatal(err)
-				return err
-			}
-			f, err := os.OpenFile(
-				fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-			if err != nil {
-				return err
-			}
-			defer f.Close()
-
-			_, err = io.Copy(f, rc)
-			if err != nil {
-				return err
-			}
+		if _, err := io.Copy(targetFile, fileReader); err != nil {
+			return err
 		}
 	}
+
 	return nil
 }
