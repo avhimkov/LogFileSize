@@ -5,8 +5,5 @@
   },
   "temp": {
     "temp": "file/temp/"
-  },
-  "time": {
-    "day": "time.Now().Local()"
   }
 }

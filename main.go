@@ -11,10 +11,11 @@ import (
 	"io"
 	"time"
 	"archive/zip"
+	//"github.com/spf13/viper"
 	"github.com/spf13/viper"
 )
 
-//var day = time.Now().Local()
+var day = time.Now().Local()
 //var Okno1 = "file/Окно№1/"
 //var Okno2 = "file/Окно№2/"
 //var temp = "file/temp/"
@@ -27,20 +28,26 @@ func main() {
 }
 
 func conf()  {
+	viper.SetConfigType("json")
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
+	err := viper.ReadInConfig()
+	if err != nil {
+		fmt.Println("No configuration file loaded - using defaults")
+	}
+	//viper.SetDefault("msg", "Hello World (default)")
 }
 
 func ShowStat(w http.ResponseWriter, r *http.Request) {
 	conf()
 	temp := viper.GetString("temp.temp")
-	okno1 := viper.GetString("windows.okno1")
-	okno2 := viper.GetString("windows.okno2")
+	Okno1 := viper.GetString("windows.okno1")
+	Okno2 := viper.GetString("windows.okno2")
 
 	render(w, "header.html")
 	//render(w, "hello.html")
-	tableOkno(w, okno1, temp)
-	tableOkno(w, okno2, temp)
+	tableOkno(w, Okno1, temp)
+	tableOkno(w, Okno2, temp)
 	//tabletemp(w, temp)
 	render(w, "footer.html")
 }
@@ -64,6 +71,7 @@ func tableOkno(w http.ResponseWriter, okno string, temp string)  {
 }
 
 func table(w http.ResponseWriter, dirZip string, dirTemp string) {
+
 	listDirZip := listfiles(dirZip, ".zip")
 
 	//listDirTemp := listfiles(dirTemp, ".wav")
@@ -73,6 +81,7 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 	//}
 
 	for i := range listDirZip {
+
 		daysAgo := daysAgo(listDirZip[i], day)
 		dcreat := dataCreate(listDirZip[i])
 		dir := listDirZip[i]
@@ -85,7 +94,6 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 			"<td align=\"center\" style=\"width: 100px;\"><audio controls>" +
 			"<source src=%s type=\"audio/wav\"></audio></td>" +
 			"</tr>", dir, dcreat, daysAgo, size, dir)
-
 		io.WriteString(w, str)
 	}
 }
