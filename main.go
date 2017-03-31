@@ -16,6 +16,10 @@ import (
 
 var day = time.Now().Local()
 
+//type data struct {
+//	Data string
+//}
+
 func main() {
 	runHTTP("/file/")
 }
@@ -43,6 +47,7 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 	tableOkno(w, Okno2, temp)
 	//tabletemp(w, temp)
 	render(w, "footer.html")
+	os.RemoveAll("file/temp/file")
 }
 
 func render(w http.ResponseWriter, tmpl string) {
@@ -78,24 +83,29 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 		daysAgo := daysAgo(listDirZip[i], day)
 		dcreat := dataCreate(listDirZip[i])
 		dir := listDirZip[i]
+		//dirtemp := listDirTemp[i]
 		size := sizeFile(listDirZip[i])
 
 		fmt.Fprintf(w, "<tr><td align=\"left\" style=\"width: 100px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">%d дней</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">%s</td>"+
-			"<td align=\"center\"style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio>"+
-			"</td></tr>", dir, dcreat, daysAgo, size, dir)
+			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
+			"<td align=\"center\" style=\"width: 100px;\"><button class=\"play\">play</button></td>"+
+			"<td align=\"center\"style=\"width: 100px;\"><audio controls><source src= type=\"audio/wav\"></audio></td>",
+		 	dir, dcreat, daysAgo, size)
 	}
-		//str2:= string("")
+
+	t := template.New("Test")
+	t, _ = t.Parse("<html><body>Hello {{.HTMLData}}</body></html>")// and another change here
+
 	//for i := range  listDirTemp{
 	//	dir := listDirTemp[i]
-	//	fmt.Fprintf(w,"<tr><td><audio controls>" +
+	//	fmt.Fprintf(w,"<td align=\"center\" style=\"width: 100px;\"><audio controls>" +
 	//		"<source src=%s type=\"audio/wav\"></audio></td>" +
-	//		"</tr>", dir)
+	//		"</tr>" + dir)
 	//}
 
-	//s:=str1+str2
+
 	//io.WriteString(w, s)
 }
 
