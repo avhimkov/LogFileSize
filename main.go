@@ -77,7 +77,6 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 		unzip(listDirZip[i], dirTemp + listDirZip[i])
 	}
 
-	//str1:= string("")
 	for i := range listDirZip {
 
 		daysAgo := daysAgo(listDirZip[i], day)
@@ -94,9 +93,6 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 			"<td align=\"center\"style=\"width: 100px;\"><audio controls><source src= type=\"audio/wav\"></audio></td>",
 		 	dir, dcreat, daysAgo, size)
 	}
-
-	t := template.New("Test")
-	t, _ = t.Parse("<html><body>Hello {{.HTMLData}}</body></html>")// and another change here
 
 	//for i := range  listDirTemp{
 	//	dir := listDirTemp[i]
