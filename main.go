@@ -68,10 +68,11 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 
 	//listDirTemp := listfiles(dirTemp, ".wav")
 
-	//for i := range listDirZip {
-	//	unzip(listDirZip[i], dirTemp + listDirZip[i])
-	//}
+	for i := range listDirZip {
+		unzip(listDirZip[i], dirTemp + listDirZip[i])
+	}
 
+	//str1:= string("")
 	for i := range listDirZip {
 
 		daysAgo := daysAgo(listDirZip[i], day)
@@ -79,15 +80,23 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 		dir := listDirZip[i]
 		size := sizeFile(listDirZip[i])
 
-		str := fmt.Sprintf("<tr><td align=\"left\" style=\"width: 100px;\">%s</td>" +
+		fmt.Fprintf(w, "<tr><td align=\"left\" style=\"width: 100px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">%d дней</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>"+
-			"<td align=\"center\" style=\"width: 100px;\"><audio controls>" +
-			"<source src=%s type=\"audio/wav\"></audio></td>" +
-			"</tr>", dir, dcreat, daysAgo, size, dir)
-		io.WriteString(w, str)
+			"<td align=\"center\"style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio>"+
+			"</td></tr>", dir, dcreat, daysAgo, size, dir)
 	}
+		//str2:= string("")
+	//for i := range  listDirTemp{
+	//	dir := listDirTemp[i]
+	//	fmt.Fprintf(w,"<tr><td><audio controls>" +
+	//		"<source src=%s type=\"audio/wav\"></audio></td>" +
+	//		"</tr>", dir)
+	//}
+
+	//s:=str1+str2
+	//io.WriteString(w, s)
 }
 
 func runHTTP(dir string) {
