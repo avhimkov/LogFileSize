@@ -46,7 +46,7 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 	tableOkno(w, Okno2, temp)
 	//tabletemp(w, temp)
 	render(w, "footer.html")
-	os.RemoveAll("file/temp/file")
+	//os.RemoveAll("file/temp/file")
 }
 
 func render(w http.ResponseWriter, tmpl string) {
@@ -67,41 +67,42 @@ func tableOkno(w http.ResponseWriter, okno string, temp string)  {
 	table(w, okno, temp)
 }
 
+func removeFile(target string)  {
+	err := os.Remove(target)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 	listDirZip := listfiles(dirZip, ".zip")
-
 	//listDirTemp := listfiles(dirTemp, ".wav")
 
+
 	for i := range listDirZip {
-		unzip(listDirZip[i], dirTemp + listDirZip[i])
+		unzip(listDirZip[i], ".")
 	}
 
-	for i := range listDirZip {
+	listDirTemp := listfiles(dirZip, ".wav")
 
-		daysAgo := daysAgo(listDirZip[i], day)
-		dcreat := dataCreate(listDirZip[i])
-		dir := listDirZip[i]
-		//dirtemp := listDirTemp[i]
-		size := sizeFile(listDirZip[i])
+	for i := range listDirTemp {
+
+		daysAgo := daysAgo(listDirTemp[i], day)
+		dcreat := dataCreate(listDirTemp[i])
+		dir := listDirTemp[i]
+		size := sizeFile(listDirTemp[i])
+
+		dirtemp := listDirTemp[i]
 
 		fmt.Fprintf(w, "<tr><td align=\"left\" style=\"width: 100px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">%d дней</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
-			"<td align=\"center\" style=\"width: 100px;\"><button class=\"play\">play</button></td>"+
-			"<td align=\"center\"style=\"width: 100px;\"><audio controls><source src= type=\"audio/wav\"></audio></td>",
-		 	dir, dcreat, daysAgo, size)
+			//"<td align=\"center\" style=\"width: 100px;\"><button class=\"play\">play</button></td>"+
+			"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
+		 	dir, dcreat, daysAgo, size, dirtemp)
+		//io.WriteString(w, s)
 	}
-
-	//for i := range  listDirTemp{
-	//	dir := listDirTemp[i]
-	//	fmt.Fprintf(w,"<td align=\"center\" style=\"width: 100px;\"><audio controls>" +
-	//		"<source src=%s type=\"audio/wav\"></audio></td>" +
-	//		"</tr>" + dir)
-	//}
-
-
-	//io.WriteString(w, s)
 }
 
 func runHTTP(dir string) {
