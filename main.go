@@ -42,11 +42,14 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 	Okno2 := viper.GetString("windows.okno2")
 
 	render(w, "header.html")
-	tableOkno(w, Okno1, temp)
-	tableOkno(w, Okno2, temp)
-	//tabletemp(w, temp)
+	//tableOkno(w, Okno1, temp)
+	//tableOkno(w, Okno2, temp)
+
+	table(w, Okno1, temp)
+	table(w, Okno2, temp)
+
 	render(w, "footer.html")
-	//os.RemoveAll("file/temp/file")
+	os.RemoveAll("file/temp/file")
 }
 
 func render(w http.ResponseWriter, tmpl string) {
@@ -61,11 +64,11 @@ func render(w http.ResponseWriter, tmpl string) {
 	}
 }
 
-func tableOkno(w http.ResponseWriter, okno string, temp string)  {
-	str := fmt.Sprintf("<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", okno)
-	io.WriteString(w, str)
-	table(w, okno, temp)
-}
+//func tableOkno(w http.ResponseWriter, okno string, temp string)  {
+//	str := fmt.Sprintf("<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", okno)
+//	io.WriteString(w, str)
+//	table(w, okno, temp)
+//}
 
 func removeFile(target string)  {
 	err := os.Remove(target)
@@ -78,21 +81,21 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 	listDirZip := listfiles(dirZip, ".zip")
 	//listDirTemp := listfiles(dirTemp, ".wav")
 
+	fmt.Fprintf(w, "<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", dirZip)
+
 
 	for i := range listDirZip {
-		unzip(listDirZip[i], ".")
+		unzip(listDirZip[i], dirTemp + listDirZip[i])
 	}
 
-	listDirTemp := listfiles(dirZip, ".wav")
+	for i := range listDirZip {
 
-	for i := range listDirTemp {
+		daysAgo := daysAgo(listDirZip[i], day)
+		dcreat := dataCreate(listDirZip[i])
+		dir := listDirZip[i]
+		size := sizeFile(listDirZip[i])
 
-		daysAgo := daysAgo(listDirTemp[i], day)
-		dcreat := dataCreate(listDirTemp[i])
-		dir := listDirTemp[i]
-		size := sizeFile(listDirTemp[i])
-
-		dirtemp := listDirTemp[i]
+		dirtemp := listDirZip[i]
 
 		fmt.Fprintf(w, "<tr><td align=\"left\" style=\"width: 100px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
@@ -101,7 +104,6 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 			//"<td align=\"center\" style=\"width: 100px;\"><button class=\"play\">play</button></td>"+
 			"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
 		 	dir, dcreat, daysAgo, size, dirtemp)
-		//io.WriteString(w, s)
 	}
 }
 
