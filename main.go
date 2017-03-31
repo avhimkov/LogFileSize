@@ -42,7 +42,6 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 	Okno2 := viper.GetString("windows.okno2")
 
 	render(w, "header.html")
-	//render(w, "hello.html")
 	tableOkno(w, Okno1, temp)
 	tableOkno(w, Okno2, temp)
 	//tabletemp(w, temp)
