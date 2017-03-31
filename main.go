@@ -80,12 +80,16 @@ func removeFile(target string)  {
 func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 	listDirZip := listfiles(dirZip, ".zip")
 	//listDirTemp := listfiles(dirTemp, ".wav")
-
+	listDir := dirlist(dirZip)
 	fmt.Fprintf(w, "<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", dirZip)
 
 
 	for i := range listDirZip {
 		unzip(listDirZip[i], dirTemp + listDirZip[i])
+	}
+
+	for i := range listDir {
+		fmt.Fprintf(w,"<tr><td align=\"left\" style=\"width: 100px;\">%s</td></tr>", listDir[i])
 	}
 
 	for i := range listDirZip {
@@ -95,7 +99,9 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 		dir := listDirZip[i]
 		size := sizeFile(listDirZip[i])
 
-		dirtemp := listDirZip[i]
+
+		listDirTemp := listfiles(dirTemp, ".wav")
+		dirtemp := listDirTemp[i]
 
 		fmt.Fprintf(w, "<tr><td align=\"left\" style=\"width: 100px;\">%s</td>" +
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
@@ -162,6 +168,22 @@ func sizeFile(path string) string {
 		fmt.Println(err)
 	}
 	return sizeStr
+}
+
+func dirlist(rootpath string) []string {
+
+	list := make([]string, 0, 10)
+
+	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			list = append(list, path)
+		}
+		return nil
+	})
+	if err != nil {
+		fmt.Printf("walk error [%v]\n", err)
+	}
+	return list
 }
 
 func listfiles(rootpath string, typefile string) []string {
