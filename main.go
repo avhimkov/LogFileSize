@@ -24,7 +24,7 @@ func main() {
 	runHTTP("/file/")
 }
 
-func conf()  {
+func conf() {
 	viper.SetConfigType("json")
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
@@ -49,7 +49,7 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 	table(w, Okno2, temp)
 
 	render(w, "footer.html")
-	os.RemoveAll("file/temp/file")
+	//os.RemoveAll("file/temp/file")
 }
 
 func render(w http.ResponseWriter, tmpl string) {
@@ -70,7 +70,7 @@ func render(w http.ResponseWriter, tmpl string) {
 //	table(w, okno, temp)
 //}
 
-func removeFile(target string)  {
+func removeFile(target string) {
 	err := os.Remove(target)
 	if err != nil {
 		log.Fatal(err)
@@ -80,17 +80,16 @@ func removeFile(target string)  {
 func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 	listDirZip := listfiles(dirZip, ".zip")
 	//listDirTemp := listfiles(dirTemp, ".wav")
-	listDir := dirlist(dirZip)
+	//listDir := dirlist(dirZip)
 	fmt.Fprintf(w, "<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", dirZip)
 
-
 	for i := range listDirZip {
-		unzip(listDirZip[i], dirTemp + listDirZip[i])
+		unzip(listDirZip[i], dirTemp+listDirZip[i])
 	}
 
-	for i := range listDir {
-		fmt.Fprintf(w,"<tr><td align=\"left\" style=\"width: 100px;\">%s</td></tr>", listDir[i])
-	}
+	//for i := range listDir {
+	//	fmt.Fprintf(w,"<tr><td align=\"left\" style=\"width: 100px;\">%s</td></tr>", listDir[i])
+	//}
 
 	for i := range listDirZip {
 
@@ -99,17 +98,15 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 		dir := listDirZip[i]
 		size := sizeFile(listDirZip[i])
 
-
 		listDirTemp := listfiles(dirTemp, ".wav")
 		dirtemp := listDirTemp[i]
 
-		fmt.Fprintf(w, "<tr><td align=\"left\" style=\"width: 100px;\">%s</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">%d дней</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
-			//"<td align=\"center\" style=\"width: 100px;\"><button class=\"play\">play</button></td>"+
+		fmt.Fprintf(w, "<tr><td align=\"left\" style=\"width: 100px;\">%s</td>"+
+			"<td align=\"center\" style=\"width: 100px;\">%s</td>"+
+			"<td align=\"center\" style=\"width: 100px;\">%d дней</td>"+
+			"<td align=\"center\" style=\"width: 100px;\">%s</td>"+
 			"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
-		 	dir, dcreat, daysAgo, size, dirtemp)
+			dir, dcreat, daysAgo, size, dirtemp)
 	}
 }
 
@@ -238,6 +235,5 @@ func unzip(archive, target string) error {
 			return err
 		}
 	}
-
 	return nil
 }
