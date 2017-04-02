@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var day = time.Now().Local()
+var day = time.Now()
 
 //type data struct {
 //	Data string
@@ -32,11 +32,13 @@ func conf() {
 	if err != nil {
 		fmt.Println("No configuration file loaded - using defaults")
 	}
-	//viper.SetDefault("msg", "Hello World (default)")
+	viper.SetDefault("msg", "Hello World (default)")
 }
 
 func ShowStat(w http.ResponseWriter, r *http.Request) {
+
 	conf()
+
 	temp := viper.GetString("temp.temp")
 	Okno1 := viper.GetString("windows.okno1")
 	Okno2 := viper.GetString("windows.okno2")
@@ -90,7 +92,7 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 
 		fmt.Fprintf(w, "<tr><td align=\"left\" style=\"width: 100px;\">%s</td>"+
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>"+
-			"<td align=\"center\" style=\"width: 100px;\">%d дней</td>"+
+			"<td align=\"center\" style=\"width: 100px;\">%.2f дней</td>"+
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>"+
 			"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
 			dir, dcreat, daysAgo, size, dirtemp)
@@ -130,7 +132,7 @@ func dataCreate(path string) string {
 	return modifiedtimef
 }
 
-func daysAgo(path string, now time.Time) int {
+func daysAgo(path string, now time.Time) float64 {
 	dataCreate(path)
 	file, err := os.Stat(path)
 	if err != nil {
@@ -141,7 +143,7 @@ func daysAgo(path string, now time.Time) int {
 		fmt.Println(err)
 	}
 	diff := now.Sub(modifiedtime)
-	days := int(diff.Hours() / 24)
+	days := float64(diff.Hours() / 24)
 	return days
 }
 
