@@ -5,5 +5,8 @@
   },
   "temp": {
     "temp": "file/temp/"
+  },
+  "dir": {
+    "dirFile": "/file/"
   }
 }

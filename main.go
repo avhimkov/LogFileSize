@@ -21,7 +21,9 @@ var day = time.Now()
 //}
 
 func main() {
-	runHTTP("/file/")
+	conf()
+	dir := viper.GetString("dir.dirFile")
+	runHTTP(dir)
 }
 
 func conf() {
@@ -36,9 +38,6 @@ func conf() {
 }
 
 func ShowStat(w http.ResponseWriter, r *http.Request) {
-
-	conf()
-
 	temp := viper.GetString("temp.temp")
 	Okno1 := viper.GetString("windows.okno1")
 	Okno2 := viper.GetString("windows.okno2")
@@ -72,7 +71,8 @@ func removeFile(target string) {
 }
 
 func table(w http.ResponseWriter, dirZip string, dirTemp string) {
-	listDirZip := listfiles(dirZip, ".zip")
+
+	listDirZip := listfiles(dirZip, ".zip", "Mar 28, 2017")
 
 	fmt.Fprintf(w, "<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", dirZip)
 
@@ -87,8 +87,9 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 		dir := listDirZip[i]
 		size := sizeFile(listDirZip[i])
 
-		listDirTemp := listfiles(dirTemp, ".wav")
+		listDirTemp := listfilescler(dirTemp, ".wav")
 		dirtemp := listDirTemp[i]
+		//fmt.Printf("dirtemp: %v \n", dirtemp)
 
 		fmt.Fprintf(w, "<tr><td align=\"left\" style=\"width: 100px;\">%s</td>"+
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>"+
@@ -127,7 +128,7 @@ func dataCreate(path string) string {
 	if err != nil {
 		fmt.Println(err)
 	}
-	modifiedtimef := modifiedtime.Format("2006-01-02 15:04:05")
+	modifiedtimef := modifiedtime.Format("2017-03-28")
 
 	return modifiedtimef
 }
@@ -157,11 +158,37 @@ func sizeFile(path string) string {
 	return sizeStr
 }
 
-func listfiles(rootpath string, typefile string) []string {
+func listfiles(rootpath string, typefile string, data string) []string {
 
 	list := make([]string, 0, 10)
 
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
+
+		modification:=info.ModTime().Format("Jan 2, 2006")
+
+		if info.IsDir() {
+			return nil
+		}
+		if modification == data {
+			if filepath.Ext(path) == typefile {
+				list = append(list, path)
+			}
+		}
+		fmt.Printf("list3: %v \n", list)
+		return nil
+	})
+	if err != nil {
+		fmt.Printf("walk error [%v]\n", err)
+	}
+	return list
+}
+
+func listfilescler (rootpath string, typefile string) []string {
+
+	list := make([]string, 0, 10)
+
+	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
+
 		if info.IsDir() {
 			return nil
 		}
