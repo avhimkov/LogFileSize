@@ -42,8 +42,6 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 	Okno2 := viper.GetString("windows.okno2")
 
 	render(w, "header.html")
-	//tableOkno(w, Okno1, temp)
-	//tableOkno(w, Okno2, temp)
 
 	table(w, Okno1, temp)
 	table(w, Okno2, temp)
@@ -64,12 +62,6 @@ func render(w http.ResponseWriter, tmpl string) {
 	}
 }
 
-//func tableOkno(w http.ResponseWriter, okno string, temp string)  {
-//	str := fmt.Sprintf("<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", okno)
-//	io.WriteString(w, str)
-//	table(w, okno, temp)
-//}
-
 func removeFile(target string) {
 	err := os.Remove(target)
 	if err != nil {
@@ -79,17 +71,12 @@ func removeFile(target string) {
 
 func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 	listDirZip := listfiles(dirZip, ".zip")
-	//listDirTemp := listfiles(dirTemp, ".wav")
-	//listDir := dirlist(dirZip)
+
 	fmt.Fprintf(w, "<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", dirZip)
 
 	for i := range listDirZip {
 		unzip(listDirZip[i], dirTemp+listDirZip[i])
 	}
-
-	//for i := range listDir {
-	//	fmt.Fprintf(w,"<tr><td align=\"left\" style=\"width: 100px;\">%s</td></tr>", listDir[i])
-	//}
 
 	for i := range listDirZip {
 
@@ -128,6 +115,7 @@ func convertSize(size int64) (string, error) {
 	humanSize := fmt.Sprintf("%d%s", size/int64(math.Pow(1024, float64(i))), sizeName[i])
 	return humanSize, nil
 }
+
 func dataCreate(path string) string {
 	file, err := os.Stat(path)
 	if err != nil {
@@ -165,22 +153,6 @@ func sizeFile(path string) string {
 		fmt.Println(err)
 	}
 	return sizeStr
-}
-
-func dirlist(rootpath string) []string {
-
-	list := make([]string, 0, 10)
-
-	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
-		if info.IsDir() {
-			list = append(list, path)
-		}
-		return nil
-	})
-	if err != nil {
-		fmt.Printf("walk error [%v]\n", err)
-	}
-	return list
 }
 
 func listfiles(rootpath string, typefile string) []string {
