@@ -26,3 +26,13 @@ script:
 #
 #  # only test on linux
 #  - if [ $BUILD_GOOS == "linux" ]; then GOARCH=$BUILD_GOARCH GOOS=$BUILD_GOOS go test -bench=.; fi
+
+deploy:
+  provider: releases
+  skip_cleanup: true # Important, otherwise the build output would be purged.
+  api_key:
+    secure: lFGBaF...SJ1lDPDICY=
+  file: bin/myawesomeapp
+  on:
+    repo: account/myawesomeproject
+    tags: true # The deployment happens only if the commit has a tag.
