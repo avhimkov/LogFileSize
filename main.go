@@ -15,10 +15,9 @@ import (
 )
 
 var day = time.Now()
-
-//type data struct {
-//	Data string
-//}
+type Data struct {
+	Data string
+}
 
 func main() {
 	conf()
@@ -40,12 +39,11 @@ func conf() {
 func ShowStat(w http.ResponseWriter, r *http.Request) {
 	temp := viper.GetString("temp.temp")
 	Okno1 := viper.GetString("windows.okno1")
-	Okno2 := viper.GetString("windows.okno2")
+	//Okno2 := viper.GetString("windows.okno2")
 
 	render(w, "header.html")
-
-	table(w, Okno1, temp)
-	table(w, Okno2, temp)
+	table(w, r, Okno1, temp)
+	//table(w, r, Okno2, temp)
 
 	render(w, "footer.html")
 	//os.RemoveAll("file/temp/file")
@@ -70,9 +68,25 @@ func removeFile(target string) {
 	}
 }
 
-func table(w http.ResponseWriter, dirZip string, dirTemp string) {
+func dataSend(w http.ResponseWriter, r *http.Request ) string  {
 
-	listDirZip := listfiles(dirZip, ".zip", "Mar 28, 2017")
+	dateS := r.FormValue("name")
+	data := &Data{dateS}
+	//fmt.Fprint(w, "<form><input type=\"date\" name=\"calendar\" value=\"\"></form>")
+	fmt.Fprint(w, "<form action=\"\" method=\"get\"><input type=\"date\" name=\"calendar\"/><input type=\"submit\" value=\"Send\"></form>")
+	//fmt.Fprint(w, "<form action=\"\" method=\"get\"><input type=\"text\" name=\"name\" /><input type=\"submit\" value=\"Send\"></form>")
+	fmt.Printf("date: %v \n", data)
+	fmt.Println(r.Form)
+	fmt.Println("path", r.URL.Path)
+	fmt.Println("scheme", r.URL.Scheme)
+	return dateS
+}
+
+func table(w http.ResponseWriter, r *http.Request, dirZip string, dirTemp string) {
+	dateS:= dataSend(w, r)
+	//listDirZip := listfiles(dirZip, ".zip", "Mar 28, 2017")
+	//fmt.Printf("dateS: %v \n", dateS)
+	listDirZip := listfiles(dirZip, ".zip", dateS)
 
 	fmt.Fprintf(w, "<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", dirZip)
 
@@ -102,6 +116,7 @@ func table(w http.ResponseWriter, dirZip string, dirTemp string) {
 
 func runHTTP(dir string) {
 	http.HandleFunc("/", ShowStat)
+	//http.HandleFunc("/date", ShowStat)
 	log.Println("localhost:8080 Listening...")
 	http.HandleFunc(dir, func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
@@ -164,7 +179,8 @@ func listfiles(rootpath string, typefile string, data string) []string {
 
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
 
-		modification:=info.ModTime().Format("Jan 2, 2006")
+		//modification:=info.ModTime().Format("Jan 2, 2006")
+		modification:=info.ModTime().Format("2017-04-21")
 
 		if info.IsDir() {
 			return nil
