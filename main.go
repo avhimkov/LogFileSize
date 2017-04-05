@@ -15,9 +15,10 @@ import (
 )
 
 var day = time.Now()
-type Data struct {
-	Data string
-}
+
+//type Data struct {
+//	Data string
+//}
 
 func main() {
 	conf()
@@ -42,6 +43,7 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 	//Okno2 := viper.GetString("windows.okno2")
 
 	render(w, "header.html")
+	//dataSend(w, r)
 	table(w, r, Okno1, temp)
 	//table(w, r, Okno2, temp)
 
@@ -70,23 +72,21 @@ func removeFile(target string) {
 
 func dataSend(w http.ResponseWriter, r *http.Request ) string  {
 
-	dateS := r.FormValue("name")
-	data := &Data{dateS}
-	//fmt.Fprint(w, "<form><input type=\"date\" name=\"calendar\" value=\"\"></form>")
-	fmt.Fprint(w, "<form action=\"\" method=\"get\"><input type=\"date\" name=\"calendar\"/><input type=\"submit\" value=\"Send\"></form>")
-	//fmt.Fprint(w, "<form action=\"\" method=\"get\"><input type=\"text\" name=\"name\" /><input type=\"submit\" value=\"Send\"></form>")
-	fmt.Printf("date: %v \n", data)
-	fmt.Println(r.Form)
-	fmt.Println("path", r.URL.Path)
-	fmt.Println("scheme", r.URL.Scheme)
-	return dateS
+	r.FormValue("name")
+	date := r.Form.Get("calendar")
+	fmt.Fprint(w, "<form action=\"\" method=\"get\"><input type=\"date\" name=\"calendar\"/>" +
+		"<input type=\"submit\" value=\"Send\"></form>")
+	fmt.Printf("date: %v \n", date)
+	//fmt.Println(r.Form["calendar"])
+	//fmt.Println("path", r.URL.Path)
+	//fmt.Println("scheme", r.URL.Scheme)
+	return date
 }
 
 func table(w http.ResponseWriter, r *http.Request, dirZip string, dirTemp string) {
-	dateS:= dataSend(w, r)
-	//listDirZip := listfiles(dirZip, ".zip", "Mar 28, 2017")
-	//fmt.Printf("dateS: %v \n", dateS)
-	listDirZip := listfiles(dirZip, ".zip", dateS)
+	//listDirZip := listfiles(dirZip, ".zip", "Mar 29, 2017")
+	//data:=dataSend(w, r)
+	listDirZip := listfiles(dirZip, ".zip", "Mar 29, 2017") //2017-03-28
 
 	fmt.Fprintf(w, "<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", dirZip)
 
@@ -143,7 +143,7 @@ func dataCreate(path string) string {
 	if err != nil {
 		fmt.Println(err)
 	}
-	modifiedtimef := modifiedtime.Format("2017-03-28")
+	modifiedtimef := modifiedtime.Format("Mar 29, 2017")
 
 	return modifiedtimef
 }
@@ -179,8 +179,8 @@ func listfiles(rootpath string, typefile string, data string) []string {
 
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
 
-		//modification:=info.ModTime().Format("Jan 2, 2006")
-		modification:=info.ModTime().Format("2017-04-21")
+		modification:=info.ModTime().Format("Jan 2, 2006")
+		//modification:=info.ModTime().UTC().Format("2017-04-21")
 
 		if info.IsDir() {
 			return nil
