@@ -70,13 +70,13 @@ func removeFile(target string) {
 	}
 }
 
-func dataSend(w http.ResponseWriter, r *http.Request ) string  {
+func dataSend(w http.ResponseWriter, r *http.Request ) string {
 
 	r.FormValue("name")
 	date := r.Form.Get("calendar")
 	fmt.Fprint(w, "<form action=\"\" method=\"get\"><input type=\"date\" name=\"calendar\"/>" +
 		"<input type=\"submit\" value=\"Send\"></form>")
-	fmt.Printf("date: %v \n", date)
+	//fmt.Printf("date: %v \n", date)
 	//fmt.Println(r.Form["calendar"])
 	//fmt.Println("path", r.URL.Path)
 	//fmt.Println("scheme", r.URL.Scheme)
@@ -84,9 +84,12 @@ func dataSend(w http.ResponseWriter, r *http.Request ) string  {
 }
 
 func table(w http.ResponseWriter, r *http.Request, dirZip string, dirTemp string) {
-	//listDirZip := listfiles(dirZip, ".zip", "Mar 29, 2017")
-	//data:=dataSend(w, r)
-	listDirZip := listfiles(dirZip, ".zip", "Mar 29, 2017") //2017-03-28
+
+	data := dataSend(w, r)
+
+	fmt.Printf("dat: %v \n", data)
+
+	listDirZip := listfiles(dirZip, ".zip", data) //2017-03-29
 
 	fmt.Fprintf(w, "<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", dirZip)
 
@@ -98,25 +101,25 @@ func table(w http.ResponseWriter, r *http.Request, dirZip string, dirTemp string
 
 		daysAgo := daysAgo(listDirZip[i], day)
 		dcreat := dataCreate(listDirZip[i])
+		dcreatf := dcreat.Format("2006-01-02")
+		fmt.Printf("dcreat: %v \n", dcreatf)
 		dir := listDirZip[i]
 		size := sizeFile(listDirZip[i])
 
 		listDirTemp := listfilescler(dirTemp, ".wav")
 		dirtemp := listDirTemp[i]
-		//fmt.Printf("dirtemp: %v \n", dirtemp)
 
 		fmt.Fprintf(w, "<tr><td align=\"left\" style=\"width: 100px;\">%s</td>"+
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>"+
 			"<td align=\"center\" style=\"width: 100px;\">%.2f дней</td>"+
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>"+
 			"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
-			dir, dcreat, daysAgo, size, dirtemp)
+			dir, dcreatf, daysAgo, size, dirtemp)
 	}
 }
 
 func runHTTP(dir string) {
 	http.HandleFunc("/", ShowStat)
-	//http.HandleFunc("/date", ShowStat)
 	log.Println("localhost:8080 Listening...")
 	http.HandleFunc(dir, func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
@@ -134,7 +137,7 @@ func convertSize(size int64) (string, error) {
 	return humanSize, nil
 }
 
-func dataCreate(path string) string {
+func dataCreate(path string) time.Time {
 	file, err := os.Stat(path)
 	if err != nil {
 		fmt.Println(err)
@@ -143,9 +146,7 @@ func dataCreate(path string) string {
 	if err != nil {
 		fmt.Println(err)
 	}
-	modifiedtimef := modifiedtime.Format("Mar 29, 2017")
-
-	return modifiedtimef
+	return modifiedtime
 }
 
 func daysAgo(path string, now time.Time) float64 {
@@ -179,8 +180,7 @@ func listfiles(rootpath string, typefile string, data string) []string {
 
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
 
-		modification:=info.ModTime().Format("Jan 2, 2006")
-		//modification:=info.ModTime().UTC().Format("2017-04-21")
+		modification:=info.ModTime().UTC().Format("2006-01-02")
 
 		if info.IsDir() {
 			return nil
