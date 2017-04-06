@@ -42,8 +42,13 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 	Okno1 := viper.GetString("windows.okno1")
 	//Okno2 := viper.GetString("windows.okno2")
 
+
 	render(w, "header.html")
 	//dataSend(w, r)
+
+	//Okno := dataSendOkno(w, r)
+	//fmt.Printf("okno: %v \n", Okno)
+
 	table(w, r, Okno1, temp)
 	//table(w, r, Okno2, temp)
 
@@ -74,8 +79,9 @@ func dataSend(w http.ResponseWriter, r *http.Request ) string {
 
 	r.FormValue("name")
 	date := r.Form.Get("calendar")
-	fmt.Fprint(w, "<form action=\"\" method=\"get\"><input type=\"date\" name=\"calendar\"/>" +
-		"<input type=\"submit\" value=\"Send\"></form>")
+	fmt.Fprint(w, "<form action=\"\" method=\"get\">" +
+		"<p><input type=\"date\" name=\"calendar\"/>" +
+		"<input type=\"submit\" value=\"Send\"></p></form>")
 	//fmt.Printf("date: %v \n", date)
 	//fmt.Println(r.Form["calendar"])
 	//fmt.Println("path", r.URL.Path)
@@ -83,7 +89,27 @@ func dataSend(w http.ResponseWriter, r *http.Request ) string {
 	return date
 }
 
+func dataSendOkno(w http.ResponseWriter, r *http.Request) string {
+
+	//date := r.FormValue("value")
+	r.ParseForm()
+	date := r.Form.Get("okno")
+	fmt.Fprint(w, "<form action=\"\" method=\"get\">" +
+		"<p><select id=\"okno\" name=\"okno\">" +
+		"<option enable>Выбрать окно</option>" +
+		"<option value=\"1\">Окно№1</option>" +
+		"<option value=\"2\">Окно№2</option>" +
+		"<option value=\"3\">Окно№3</option>" +
+		"<option value=\"4\">Окно№4</option>" +
+		"</select><input type=\"submit\" value=\"Send\"></p></form>")
+	fmt.Printf("oknodata: %v \n", date)
+	return date
+
+}
+
 func table(w http.ResponseWriter, r *http.Request, dirZip string, dirTemp string) {
+	Okno := dataSendOkno(w, r)
+	fmt.Printf("okno: %v \n", Okno)
 
 	data := dataSend(w, r)
 
@@ -190,7 +216,7 @@ func listfiles(rootpath string, typefile string, data string) []string {
 				list = append(list, path)
 			}
 		}
-		fmt.Printf("list3: %v \n", list)
+		//fmt.Printf("list3: %v \n", list)
 		return nil
 	})
 	if err != nil {
