@@ -19,7 +19,6 @@ var day = time.Now()
 func main() {
 	conf()
 	dir := viper.GetString("dir.dirFile")
-
 	runHTTP(dir)
 }
 
@@ -35,12 +34,12 @@ func conf() {
 }
 
 func ShowStat(w http.ResponseWriter, r *http.Request) {
-	//temp := viper.GetString("temp.temp")
+	temp := viper.GetString("temp.temp")
 	//Okno1 := viper.GetString("windows.okno1")
 
 	render(w, "header.html")
-	//table(w, r, temp)
-	htmlRang(w, r)
+	table(w, r, temp)
+	//htmlRang(w, r)
 	render(w, "footer.html")
 	//os.RemoveAll("file/temp/file")
 }
@@ -69,69 +68,45 @@ type config struct {
 	PathMap string `mapstructure:"windows"`
 }
 
-//var window = map[string]interface{}{
-//	"Окно№1": "file/Окно№1/",
-//	"Окно№2": "file/Окно№2/",
-//	"Окно№3": "file/Окно№3/",
-//	"Окно№4": "file/Окно№4/",
-//	"Окно№5": "file/Окно№5/",
-//	"Окно№6": "file/Окно№6/",
-//	"Окно№7": "file/Окно№7/",
-//}
-
-func htmlRang(w http.ResponseWriter, r *http.Request)  {
+func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 
 	window:=viper.GetStringMap("windows")
-
-	html := `<select> // for loop in html template example
-		   {{range $key, $value := .}}
-		     <option value="{{ $value }}">{{ $key }}</option>
-		   {{end}}
-		 </select>`
-
-	selectTemplate, err := template.New("select").Parse(string(html))
-	if err != nil {
-		panic(err)
-	}
-
-	// populate dropdown with fruits
-	selectTemplate.Execute(w, window)
-
-	// no need for this...
-	//w.Write([]byte(html))
-}
-
-func dataSend(w http.ResponseWriter, r *http.Request)  (string, string) {
 
 	r.FormValue("name")
 	r.ParseForm()
 	date1 := r.Form.Get("calendar")
 	okno1 := r.Form.Get("okno")
 
-	fmt.Fprint(w, "<form action=\"\" method=\"get\">" +
-		"<p><input type=\"date\" name=\"calendar\"/>" +
-		"<select id=\"okno\" name=\"okno\">" +
-		"<option enable>Выбрать окно</option>" +
-		"<option value=\"Окно№1\">Окно№1</option>" +
-		"<option value=\"Окно№2\">Окно№2</option>" +
-		"<option value=\"Окно№3\">Окно№3</option>" +
-		"<option value=\"Окно№4\">Окно№4</option>" +
-		"<option value=\"Окно№5\">Окно№5</option>" +
-		"<option value=\"Окно№6\">Окно№6</option>" +
-		"<option value=\"Окно№7\">Окно№7</option>" +
-		"</select>" +
-		"<p><input type=\"submit\" value=\"Показать\"></p></p></form>")
-	//fmt.Println(r.Form["calendar"])
-	//fmt.Println("path", r.URL.Path)
-	//fmt.Println("scheme", r.URL.Scheme)
+	html :=`<form action="" method="get">
+		<p><input type="date" name="calendar"/>
+		<select id="okno" name="okno">
+		<option enable>Выбрать окно</option>
+		   {{range $key, $value := .}}
+		     <option value="{{ $value }}">{{ $key }}</option>
+		   {{end}}
+		</select><p><input type="submit" value="Показать"></p></p></form>`
+
+	selectTemplate, err := template.New("select").Parse(string(html))
+	if err != nil {
+		panic(err)
+	}
+
+	selectTemplate.Execute(w, window)
+
 	return date1, okno1
 }
+//	//fmt.Println(r.Form["calendar"])
+//	//fmt.Println("path", r.URL.Path)
+//	//fmt.Println("scheme", r.URL.Scheme)
 
 func table(w http.ResponseWriter, r *http.Request, dirTemp string) {
-
-	data, okno := dataSend(w, r)
-	//fmt.Printf("okno: %v \n", okno)
-	oknoS:= "file/" + okno + "/"
+	dir := viper.GetString("dir.dirFile")
+	fmt.Printf("data: %v \n", dir)
+	data, okno := htmlRang(w, r)
+	fmt.Printf("data: %v \n", data)
+	fmt.Printf("okno: %v \n", okno)
+	oknoS := "file/" +  okno + "/"
+	fmt.Printf("oknoS: %v \n", oknoS)
 
 	listDirZip := listfiles(oknoS, ".zip", data) //2017-03-29
 
