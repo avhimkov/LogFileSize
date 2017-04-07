@@ -79,14 +79,12 @@ type dataM struct {
 
 }
 
-func dataSend(w http.ResponseWriter, r *http.Request, data *dataM) qdataM() string {
+func dataSend(w http.ResponseWriter, r *http.Request)  (string, string) {
 
 	r.FormValue("name")
 	r.ParseForm()
-	date := r.Form.Get("calendar")
-	fmt.Printf("data: %v \n", date)
-	okno := r.Form.Get("okno")
-	fmt.Printf("okno: %v \n", okno)
+	date1 := r.Form.Get("calendar")
+	okno1 := r.Form.Get("okno")
 
 	fmt.Fprint(w, "<form action=\"\" method=\"get\">" +
 		"<p><input type=\"date\" name=\"calendar\"/>" +
@@ -97,45 +95,27 @@ func dataSend(w http.ResponseWriter, r *http.Request, data *dataM) qdataM() stri
 		"<option value=\"Окно№3\">Окно№3</option>" +
 		"<option value=\"Окно№4\">Окно№4</option>" +
 		"</select>" +
-		"<input type=\"submit\" value=\"Send\"></p></form>")
+		"<p><input type=\"submit\" value=\"Выбрать\"></p></p></form>")
 	//fmt.Printf("date: %v \n", date)
 	//fmt.Println(r.Form["calendar"])
 	//fmt.Println("path", r.URL.Path)
 	//fmt.Println("scheme", r.URL.Scheme)
-	return date
+	return date1, okno1
 }
 
-//func dataSendOkno(w http.ResponseWriter, r *http.Request) string {
-//
-//	//date := r.FormValue("value")
-//	r.ParseForm()
-//	date := r.Form.Get("okno")
-//	fmt.Fprint(w, "<form action=\"\" method=\"get\">" +
-//		"<p>" +
-//		"<select id=\"okno\" name=\"okno\">" +
-//		"<option enable>Выбрать окно</option>" +
-//		"<option value=\"Окно№1\">Окно№1</option>" +
-//		"<option value=\"Окно№2\">Окно№2</option>" +
-//		"<option value=\"Окно№3\">Окно№3</option>" +
-//		"<option value=\"Окно№4\">Окно№4</option>" +
-//		"</select>" +
-//		"<input type=\"submit\" value=\"Send\"></p></form>")
-//	//fmt.Printf("oknodata: %v \n", date)
-//	return date
-//
-//}
-
 func table(w http.ResponseWriter, r *http.Request, dirZip string, dirTemp string) {
-	data := dataSend(w, r)
-	//fmt.Printf("data: %v \n", data)
 
-	listDirZip := listfiles(dirZip, ".zip", data) //2017-03-29
+	data, okno := dataSend(w, r)
+	//fmt.Printf("okno: %v \n", okno)
+	oknoS:= "file/" + okno + "/"
 
-	fmt.Fprintf(w, "<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", dirZip)//dirZip
+	listDirZip := listfiles(oknoS, ".zip", data) //2017-03-29
 
-	for i := range listDirZip {
-		unzip(listDirZip[i], dirTemp+listDirZip[i])
-	}
+	fmt.Fprintf(w, "<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", oknoS)//dirZip
+
+	//for i := range listDirZip {
+	//	unzip(listDirZip[i], dirTemp+listDirZip[i])
+	//}
 
 	for i := range listDirZip {
 
@@ -146,8 +126,9 @@ func table(w http.ResponseWriter, r *http.Request, dirZip string, dirTemp string
 		dir := listDirZip[i]
 		size := sizeFile(listDirZip[i])
 
-		listDirTemp := listfilescler(dirTemp, ".wav")
-		dirtemp := listDirTemp[i]
+		//listDirTemp := listfilescler(dirTemp, ".wav")
+		//dirtemp := listDirTemp[i]
+		dirtemp := listDirZip[i]
 
 		fmt.Fprintf(w, "<tr><td align=\"left\" style=\"width: 100px;\">%s</td>"+
 			"<td align=\"center\" style=\"width: 100px;\">%s</td>"+
