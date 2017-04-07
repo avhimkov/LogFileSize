@@ -16,10 +16,6 @@ import (
 
 var day = time.Now()
 
-//type Data struct {
-//	Data string
-//}
-
 func main() {
 	conf()
 	dir := viper.GetString("dir.dirFile")
@@ -39,19 +35,10 @@ func conf() {
 
 func ShowStat(w http.ResponseWriter, r *http.Request) {
 	temp := viper.GetString("temp.temp")
-	Okno1 := viper.GetString("windows.okno1")
-	//Okno2 := viper.GetString("windows.okno2")
-
+	//Okno1 := viper.GetString("windows.okno1")
 
 	render(w, "header.html")
-	//dataSend(w, r)
-
-	//Okno := dataSendOkno(w, r)
-	//fmt.Printf("okno: %v \n", Okno)
-
-	table(w, r, Okno1, temp)
-	//table(w, r, Okno2, temp)
-
+	table(w, r, temp)
 	render(w, "footer.html")
 	//os.RemoveAll("file/temp/file")
 }
@@ -75,16 +62,18 @@ func removeFile(target string) {
 	}
 }
 
-type dataM struct {
-
-}
-
 func dataSend(w http.ResponseWriter, r *http.Request)  (string, string) {
 
 	r.FormValue("name")
 	r.ParseForm()
 	date1 := r.Form.Get("calendar")
 	okno1 := r.Form.Get("okno")
+
+	//<select> // for loop in html template example
+	//	{{range $key, $value := .}}
+	//	<option value="{{ $value }}">{{ $key }}</option>
+	//	{{end}}
+	//</select>
 
 	fmt.Fprint(w, "<form action=\"\" method=\"get\">" +
 		"<p><input type=\"date\" name=\"calendar\"/>" +
@@ -94,16 +83,18 @@ func dataSend(w http.ResponseWriter, r *http.Request)  (string, string) {
 		"<option value=\"Окно№2\">Окно№2</option>" +
 		"<option value=\"Окно№3\">Окно№3</option>" +
 		"<option value=\"Окно№4\">Окно№4</option>" +
+		"<option value=\"Окно№5\">Окно№5</option>" +
+		"<option value=\"Окно№6\">Окно№6</option>" +
+		"<option value=\"Окно№7\">Окно№7</option>" +
 		"</select>" +
-		"<p><input type=\"submit\" value=\"Выбрать\"></p></p></form>")
-	//fmt.Printf("date: %v \n", date)
+		"<p><input type=\"submit\" value=\"Показать\"></p></p></form>")
 	//fmt.Println(r.Form["calendar"])
 	//fmt.Println("path", r.URL.Path)
 	//fmt.Println("scheme", r.URL.Scheme)
 	return date1, okno1
 }
 
-func table(w http.ResponseWriter, r *http.Request, dirZip string, dirTemp string) {
+func table(w http.ResponseWriter, r *http.Request, dirTemp string) {
 
 	data, okno := dataSend(w, r)
 	//fmt.Printf("okno: %v \n", okno)
@@ -113,11 +104,8 @@ func table(w http.ResponseWriter, r *http.Request, dirZip string, dirTemp string
 
 	fmt.Fprintf(w, "<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", oknoS)//dirZip
 
-	//for i := range listDirZip {
-	//	unzip(listDirZip[i], dirTemp+listDirZip[i])
-	//}
-
 	for i := range listDirZip {
+		unzip(listDirZip[i], dirTemp+listDirZip[i])
 
 		daysAgo := daysAgo(listDirZip[i], day)
 		dcreat := dataCreate(listDirZip[i])
@@ -126,15 +114,20 @@ func table(w http.ResponseWriter, r *http.Request, dirZip string, dirTemp string
 		dir := listDirZip[i]
 		size := sizeFile(listDirZip[i])
 
-		//listDirTemp := listfilescler(dirTemp, ".wav")
-		//dirtemp := listDirTemp[i]
-		dirtemp := listDirZip[i]
+		listDirTemp := listfilescler(dirTemp, ".wav")
+		dirtemp := listDirTemp[i]
 
-		fmt.Fprintf(w, "<tr><td align=\"left\" style=\"width: 100px;\">%s</td>"+
-			"<td align=\"center\" style=\"width: 100px;\">%s</td>"+
-			"<td align=\"center\" style=\"width: 100px;\">%.2f дней</td>"+
-			"<td align=\"center\" style=\"width: 100px;\">%s</td>"+
-			"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
+		fmt.Printf("dirtemp1: %v \n", dirtemp)
+
+		fmt.Fprintf(w, "<tr><td align=\"left\" style=\"width: 100px;\">%s</td>" +
+			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
+			"<td align=\"center\" style=\"width: 100px;\">%.2f дней</td>" +
+			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
+			"<td align=\"center\" style=\"width: 100px;\">" +
+			"<form action=\"%s\"><input type=\"submit\" value=\"Прослушать\"/></form>" +
+			"</td></tr>",
+
+			//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
 			dir, dcreatf, daysAgo, size, dirtemp)
 	}
 }

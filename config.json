@@ -1,7 +1,12 @@
 {
   "windows": {
-    "okno1": "file/",
-    "okno2": "file/Окно№2/"
+    "okno1": {"key":"file/Окно№1/", "value":"Окно№1"},
+    "okno2": {"key":"file/Окно№2/", "value":"Окно№2"},
+    "okno3": {"key":"file/Окно№3/", "value":"Окно№3"},
+    "okno4": {"key":"file/Окно№4/", "value":"Окно№4"},
+    "okno5": {"key":"file/Окно№5/", "value":"Окно№5"},
+    "okno6": {"key":"file/Окно№6/", "value":"Окно№6"},
+    "okno7": {"key":"file/Окно№7/", "value":"Окно№7"}
   },
   "temp": {
     "temp": "file/temp/"
