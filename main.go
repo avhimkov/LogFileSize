@@ -62,28 +62,40 @@ func render(w http.ResponseWriter, tmpl string) {
 //	}
 //}
 
-type config struct {
-	Name string
-	PathMap string `mapstructure:"windows"`
-}
-
 func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 
 	window:=viper.GetStringMap("windows")
+
 
 	r.FormValue("name")
 	r.ParseForm()
 	date1 := r.Form.Get("calendar")
 	okno1 := r.Form.Get("okno")
+		html :=`<h2 align="center" width="100" class="h1">Мониторинг</h2>
 
-	html :=`<form action="" method="get">
-		<p><input type="date" name="calendar"/>
-		<select id="okno" name="okno">
+		<tr class="bg-info">
+		<td>Имя файла</td>
+		<td>Дата</td>
+		<td>Прошло дней</td>
+		<td>Размер</td>
+		<td>Аудио</td>
+		</tr>
+
+		<form action="" method="get" id="bootstrapSelectForm" class="form-horizontal">
+
+		<div class="form-group">
+     	        <label class="col-xs-5 control-label"></label>
+      		<div class="col-xs-2 selectContainer">
+      		<p><input type="date" name="calendar" class="form-control"/></p>
+		<select id="okno" name="okno" class="form-control">
 		<option enable>Выбрать окно</option>
 		   {{range $key, $value := .}}
 		     <option value="{{ $value }}">{{ $key }}</option>
 		   {{end}}
-		</select><p><input type="submit" value="Показать"></p></p></form>`
+		</select>
+		<p><p><input type="submit" class="btn btn-primary" value="Показать"></p></p>
+		</div></div>
+		</form>`
 
 	selectTemplate, err := template.New("select").Parse(string(html))
 	if err != nil {
@@ -93,6 +105,12 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 	selectTemplate.Execute(w, window)
 
 	return date1, okno1
+}
+
+func templat(w http.ResponseWriter, r *http.Request)  {
+	render(w, "header.html")
+	render(w, "hello.html")
+	render(w, "footer.html")
 }
 //	//fmt.Println(r.Form["calendar"])
 //	//fmt.Println("path", r.URL.Path)
@@ -107,9 +125,9 @@ func table(w http.ResponseWriter, r *http.Request, dirTemp string) {
 	oknoS := "file/" +  okno + "/"
 	fmt.Printf("oknoS: %v \n", oknoS)
 
-	listDirZip := listfiles(oknoS, ".zip", data) //2017-03-29
+	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"5\" >"+ okno +"</td></tr>")
 
-	fmt.Fprintf(w, "<tr><td colspan=\"5\" align=\"center\" style=\"width: 500px;\">%s</td></tr>", oknoS)//dirZip
+	listDirZip := listfiles(oknoS, ".zip", data) //2017-03-29
 
 	for i := range listDirZip {
 		unzip(listDirZip[i], dirTemp+listDirZip[i])
@@ -125,12 +143,13 @@ func table(w http.ResponseWriter, r *http.Request, dirTemp string) {
 
 		fmt.Printf("dirtemp1: %v \n", dirtemp)
 
-		fmt.Fprintf(w, "<tr><td align=\"left\" style=\"width: 100px;\">%s</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">%.2f дней</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">%s</td>" +
-			"<td align=\"center\" style=\"width: 100px;\">" +
-			"<form action=\"%s\"><input type=\"submit\" value=\"Прослушать\"/></form>" +
+		fmt.Fprintf(w, "<tr>" +
+			"<td align=\"left\" \">%s</td>" +
+			"<td align=\"center\" >%s</td>" +
+			"<td align=\"center\" >%.2f дней</td>" +
+			"<td align=\"center\">%s</td>" +
+			"<td align=\"center\" >" +
+			"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>" +
 			"</td></tr>",
 
 			//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
@@ -139,7 +158,9 @@ func table(w http.ResponseWriter, r *http.Request, dirTemp string) {
 }
 
 func runHTTP(dir string) {
-	http.HandleFunc("/", ShowStat)
+	http.HandleFunc("/", templat)
+	http.HandleFunc("/audio", ShowStat)
+	//http.HandleFunc("/monit", Monit)
 	log.Println("localhost:8080 Listening...")
 	http.HandleFunc(dir, func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
