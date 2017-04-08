@@ -35,7 +35,6 @@ func conf() {
 
 func ShowStat(w http.ResponseWriter, r *http.Request) {
 	temp := viper.GetString("temp.temp")
-	//Okno1 := viper.GetString("windows.okno1")
 
 	render(w, "header.html")
 	table(w, r, temp)
@@ -56,12 +55,12 @@ func render(w http.ResponseWriter, tmpl string) {
 	}
 }
 
-func removeFile(target string) {
-	err := os.Remove(target)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+//func removeFile(target string) {
+//	err := os.Remove(target)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//}
 
 type config struct {
 	Name string
@@ -101,7 +100,7 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 
 func table(w http.ResponseWriter, r *http.Request, dirTemp string) {
 	dir := viper.GetString("dir.dirFile")
-	fmt.Printf("data: %v \n", dir)
+	fmt.Printf("dir: %v \n", dir)
 	data, okno := htmlRang(w, r)
 	fmt.Printf("data: %v \n", data)
 	fmt.Printf("okno: %v \n", okno)
@@ -118,7 +117,6 @@ func table(w http.ResponseWriter, r *http.Request, dirTemp string) {
 		daysAgo := daysAgo(listDirZip[i], day)
 		dcreat := dataCreate(listDirZip[i])
 		dcreatf := dcreat.Format("2006-01-02")
-		fmt.Printf("dcreat: %v \n", dcreatf)
 		dir := listDirZip[i]
 		size := sizeFile(listDirZip[i])
 
