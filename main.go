@@ -165,6 +165,9 @@ func runHTTP(dir string) {
 	http.HandleFunc(dir, func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
 	})
+	http.HandleFunc("/bootstrap/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, r.URL.Path[1:])
+	})
 	http.ListenAndServe(":8080", nil)
 }
 
