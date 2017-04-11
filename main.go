@@ -64,15 +64,14 @@ func render(w http.ResponseWriter, tmpl string) {
 
 func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 
-	window:=viper.GetStringMap("windows")
-
+	window :=viper.GetStringMap("windows")
 
 	r.FormValue("name")
 	r.ParseForm()
-	date1 := r.Form.Get("calendar")
-	okno1 := r.Form.Get("okno")
-		html :=`<h2 align="center" width="100" class="h1">Мониторинг</h2>
 
+	date := r.Form.Get("calendar")
+	okno := r.Form.Get("okno")
+		html :=`<h2 align="center" width="100" class="h1">Мониторинг</h2>
 		<tr class="bg-info">
 		<td>Имя файла</td>
 		<td>Дата</td>
@@ -80,9 +79,7 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 		<td>Размер</td>
 		<td>Аудио</td>
 		</tr>
-
 		<form action="" method="get" id="bootstrapSelectForm" class="form-horizontal">
-
 		<div class="form-group">
      	        <label class="col-xs-5 control-label"></label>
       		<div class="col-xs-2 selectContainer">
@@ -101,10 +98,8 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 	if err != nil {
 		panic(err)
 	}
-
 	selectTemplate.Execute(w, window)
-
-	return date1, okno1
+	return date, okno
 }
 
 func templat(w http.ResponseWriter, r *http.Request)  {
@@ -120,6 +115,10 @@ func table(w http.ResponseWriter, r *http.Request, dirTemp string) {
 	dir := viper.GetString("dir.dirFile")
 	fmt.Printf("dir: %v \n", dir)
 	data, okno := htmlRang(w, r)
+	if data == "" {
+		panic("")
+	}
+
 	fmt.Printf("data: %v \n", data)
 	fmt.Printf("okno: %v \n", okno)
 	oknoS := "file/" +  okno + "/"
@@ -130,7 +129,7 @@ func table(w http.ResponseWriter, r *http.Request, dirTemp string) {
 	listDirZip := listfiles(oknoS, ".zip", data) //2017-03-29
 
 	for i := range listDirZip {
-		unzip(listDirZip[i], dirTemp+listDirZip[i])
+		//unzip(listDirZip[i], dirTemp+listDirZip[i])
 
 		daysAgo := daysAgo(listDirZip[i], day)
 		dcreat := dataCreate(listDirZip[i])
