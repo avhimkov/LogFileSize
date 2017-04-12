@@ -38,7 +38,7 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 
 	render(w, "header.html")
 	table(w, r, temp)
-	//htmlRang(w, r)
+	//tableAll(w, r)
 	render(w, "footer.html")
 	//os.RemoveAll("file/temp/file")
 }
@@ -93,7 +93,6 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 		<p><p><input type="submit" class="btn btn-primary" value="Показать"></p></p>
 		</div></div>
 		</form>`
-
 	selectTemplate, err := template.New("select").Parse(string(html))
 	if err != nil {
 		panic(err)
@@ -112,13 +111,7 @@ func templat(w http.ResponseWriter, r *http.Request)  {
 //	//fmt.Println("scheme", r.URL.Scheme)
 
 func table(w http.ResponseWriter, r *http.Request, dirTemp string) {
-	dir := viper.GetString("dir.dirFile")
-	fmt.Printf("dir: %v \n", dir)
 	data, okno := htmlRang(w, r)
-	if data == "" {
-		panic("")
-	}
-
 	fmt.Printf("data: %v \n", data)
 	fmt.Printf("okno: %v \n", okno)
 	oknoS := "file/" +  okno + "/"
@@ -129,8 +122,7 @@ func table(w http.ResponseWriter, r *http.Request, dirTemp string) {
 	listDirZip := listfiles(oknoS, ".zip", data) //2017-03-29
 
 	for i := range listDirZip {
-		//unzip(listDirZip[i], dirTemp+listDirZip[i])
-
+		//unzip(dirTemp, dirTemp+listDirZip[i])
 		daysAgo := daysAgo(listDirZip[i], day)
 		dcreat := dataCreate(listDirZip[i])
 		dcreatf := dcreat.Format("2006-01-02")
@@ -140,7 +132,7 @@ func table(w http.ResponseWriter, r *http.Request, dirTemp string) {
 		listDirTemp := listfilescler(dirTemp, ".wav")
 		dirtemp := listDirTemp[i]
 
-		fmt.Printf("dirtemp1: %v \n", dirtemp)
+		//fmt.Printf("dirtemp1: %v \n", dirtemp)
 
 		fmt.Fprintf(w, "<tr>" +
 			"<td align=\"left\" \">%s</td>" +
@@ -158,6 +150,7 @@ func table(w http.ResponseWriter, r *http.Request, dirTemp string) {
 
 func runHTTP(dir string) {
 	http.HandleFunc("/", templat)
+	//http.HandleFunc("/monit", tableAll)
 	http.HandleFunc("/audio", ShowStat)
 	//http.HandleFunc("/monit", Monit)
 	log.Println("localhost:8080 Listening...")
