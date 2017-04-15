@@ -43,6 +43,16 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 	//os.RemoveAll("file/temp/file")
 }
 
+func ShowStat1(w http.ResponseWriter, r *http.Request) {
+	temp := viper.GetString("temp.temp")
+
+	render(w, "header.html")
+	table1(w, r, temp)
+	//tableAll(w, r)
+	render(w, "footer.html")
+	//os.RemoveAll("file/temp/file")
+}
+
 func render(w http.ResponseWriter, tmpl string) {
 	tmpl = fmt.Sprintf("templates/%s", tmpl)
 	t, err := template.ParseFiles(tmpl)
@@ -148,9 +158,49 @@ func table(w http.ResponseWriter, r *http.Request, dirTemp string) {
 	}
 }
 
+func table1(w http.ResponseWriter, r *http.Request, dirTemp string) {
+	data, okno := htmlRang(w, r)
+	fmt.Printf("data: %v \n", data)
+	fmt.Printf("okno: %v \n", okno)
+	//oknoS := "file/" +  okno + "/"
+	//fmt.Printf("oknoS: %v \n", oknoS)
+	//
+	//fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"5\" >"+ okno +"</td></tr>")
+	dir := viper.GetString("dir.dirFile")
+	fmt.Printf("dir: %v \n", dir)
+	listDirZip := listfilescler("file/", ".zip") //2017-03-29
+
+	for i := range listDirZip {
+		//unzip(dirTemp, dirTemp+listDirZip[i])
+		daysAgo := daysAgo(listDirZip[i], day)
+		dcreat := dataCreate(listDirZip[i])
+		dcreatf := dcreat.Format("2006-01-02")
+		dir := listDirZip[i]
+		size := sizeFile(listDirZip[i])
+
+		//listDirTemp := listfilescler(dirTemp, ".wav")
+		//dirtemp := listDirTemp[i]
+
+		//fmt.Printf("dirtemp1: %v \n", dirtemp)
+
+		fmt.Fprintf(w, "<tr>" +
+			"<td align=\"left\" \">%s</td>" +
+			"<td align=\"center\" >%s</td>" +
+			"<td align=\"center\" >%.2f дней</td>" +
+			"<td align=\"center\">%s</td>" +
+			//"<td align=\"center\" >" +
+			//"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>" +
+			//"</td>" +
+			"</tr>",
+
+			//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
+			dir, dcreatf, daysAgo, size)
+	}
+}
+
 func runHTTP(dir string) {
 	http.HandleFunc("/", templat)
-	//http.HandleFunc("/monit", tableAll)
+	http.HandleFunc("/monit", ShowStat1)
 	http.HandleFunc("/audio", ShowStat)
 	//http.HandleFunc("/monit", Monit)
 	log.Println("localhost:8080 Listening...")
