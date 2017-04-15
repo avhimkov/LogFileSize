@@ -86,7 +86,7 @@ func head(w http.ResponseWriter, r *http.Request) string {
 		<div class="form-group">
      	        <label class="col-xs-5 control-label"></label>
       		<div class="col-xs-2 selectContainer">
-      		<h5>Выбирите дату</h5>
+      		<h4>Выбирите дату</h4>
       		<p><input type="date" name="calendar" class="form-control"/></p>
 		<p><p><input type="submit" class="btn btn-primary" value="Показать"></p></p>
 		</div></div>
@@ -107,8 +107,7 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 
 	date := r.Form.Get("calendar")
 	okno := r.Form.Get("okno")
-		html :=`<h2 align="center" width="100" class="h1">Мониторинг</h2>
-		<tr class="bg-info">
+		html :=`<tr class="bg-info">
 		<td>Имя файла</td>
 		<td>Дата</td>
 		<td>Прошло дней</td>
@@ -119,9 +118,9 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 		<div class="form-group">
      	        <label class="col-xs-5 control-label"></label>
       		<div class="col-xs-2 selectContainer">
-      		<h5>Выбирите дату</h5>
+      		<h4>Выбирите дату</h4>
       		<p><input type="date" name="calendar" class="form-control" /></p>
-      		<h5>Выбирите окно</h5>
+      		<h4>Выбирите окно</h4>
 		<select id="okno" name="okno" class="form-control">
 		   {{range $key, $value := .}}
 		     <option value="{{ $value }}">{{ $key }}</option>
@@ -140,7 +139,7 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 
 func templat(w http.ResponseWriter, r *http.Request)  {
 	render(w, "header.html")
-	render(w, "hello.html")
+	//render(w, "hello.html")
 	render(w, "footer.html")
 }
 //	//fmt.Println(r.Form["calendar"])
@@ -171,6 +170,7 @@ func table(w http.ResponseWriter, r *http.Request, dirTemp string) {
 
 		//fmt.Printf("dirtemp1: %v \n", dirtemp)
 
+
 		fmt.Fprintf(w, "<tr>" +
 			"<td align=\"left\" \">%s</td>" +
 			"<td align=\"center\" >%s</td>" +
@@ -200,24 +200,40 @@ func table1(w http.ResponseWriter, r *http.Request) {
 		dcreatf := dcreat.Format("2006-01-02")
 		dir := listDirZip[i]
 		size := sizeFile(listDirZip[i])
+		sizeint := sizeFileint(listDirZip[i])
 
 		//listDirTemp := listfilescler(dirTemp, ".wav")
 		//dirtemp := listDirTemp[i]
 
-		//fmt.Printf("dirtemp1: %v \n", dirtemp)
-
-		fmt.Fprintf(w, "<tr>" +
-			"<td align=\"left\" \">%s</td>" +
-			"<td align=\"center\" >%s</td>" +
-			"<td align=\"center\" >%.2f дней</td>" +
-			"<td align=\"center\">%s</td>" +
+		fmt.Printf("sizeint: %v \n", sizeint)
+		if sizeint > 1000 {
+			fmt.Fprintf(w, "<tr>" +
+				"<td align=\"left\" \">%s</td>" +
+				"<td align=\"center\" >%s</td>" +
+				"<td align=\"center\" >%.2f дней</td>" +
+				"<td align=\"center\">%s</td>" +
 			//"<td align=\"center\" >" +
 			//"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>" +
 			//"</td>" +
-			"</tr>",
+				"</tr>",
 
-			//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
-			dir, dcreatf, daysAgo, size)
+				//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
+				dir, dcreatf, daysAgo, size)
+		} else {
+			fmt.Fprintf(w, "<tr>" +
+				"<td bgcolor=\"#ffcc00\" align=\"left\" \">%s</td>" +
+				"<td bgcolor=\"#ffcc00\" align=\"center\" >%s</td>" +
+				"<td bgcolor=\"#ffcc00\" align=\"center\" >%.2f дней</td>" +
+				"<td bgcolor=\"#ffcc00\" align=\"center\">%s</td>" +
+			//"<td align=\"center\" >" +
+			//"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>" +
+			//"</td>" +
+				"</tr>",
+
+				//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
+				dir, dcreatf, daysAgo, size)
+		}
+
 	}
 }
 
@@ -242,7 +258,7 @@ func convertSize(size int64) (string, error) {
 	}
 	sizeName := []string{"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"}
 	i := int(math.Log2(float64(size)) / 10)
-	humanSize := fmt.Sprintf("%d%s", size/int64(math.Pow(1024, float64(i))), sizeName[i])
+	humanSize := fmt.Sprintf("%d %s", size/int64(math.Pow(1024, float64(i))), sizeName[i])
 	return humanSize, nil
 }
 
@@ -282,6 +298,17 @@ func sizeFile(path string) string {
 	}
 	return sizeStr
 }
+
+func sizeFileint(path string) int64 {
+
+	stat, err := os.Stat(path)
+	sizeStr := stat.Size()
+	if err != nil {
+		fmt.Println(err)
+	}
+	return sizeStr
+}
+
 
 func listfiles(rootpath string, typefile string, data string) []string {
 
