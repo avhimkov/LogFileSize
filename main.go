@@ -18,7 +18,7 @@ var day = time.Now()
 
 func main() {
 	conf()
-	dir := viper.GetString("dir.dirFile")
+	dir := viper.GetString("dirServer.dir")
 	runHTTP(dir)
 }
 
@@ -86,6 +86,7 @@ func head(w http.ResponseWriter, r *http.Request) string {
 		<div class="form-group">
      	        <label class="col-xs-5 control-label"></label>
       		<div class="col-xs-2 selectContainer">
+      		<h5>Выбирите дату</h5>
       		<p><input type="date" name="calendar" class="form-control"/></p>
 		<p><p><input type="submit" class="btn btn-primary" value="Показать"></p></p>
 		</div></div>
@@ -118,9 +119,10 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 		<div class="form-group">
      	        <label class="col-xs-5 control-label"></label>
       		<div class="col-xs-2 selectContainer">
-      		<p><input type="date" name="calendar" class="form-control"/></p>
+      		<h5>Выбирите дату</h5>
+      		<p><input type="date" name="calendar" class="form-control" /></p>
+      		<h5>Выбирите окно</h5>
 		<select id="okno" name="okno" class="form-control">
-		<option enable>Выбрать окно</option>
 		   {{range $key, $value := .}}
 		     <option value="{{ $value }}">{{ $key }}</option>
 		   {{end}}
@@ -187,7 +189,7 @@ func table1(w http.ResponseWriter, r *http.Request) {
 	date := head(w, r)
 	fmt.Printf("date: %v \n", date)
 	//fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"5\" >"+ okno +"</td></tr>")
-	dir := viper.GetString("dirallfiles.dir")
+	dir := viper.GetString("dirAllFiles.dir")
 	fmt.Printf("dir: %v \n", dir)
 	listDirZip := listfiles(dir, ".zip", date) //2017-03-29
 
