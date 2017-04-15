@@ -44,10 +44,10 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 }
 
 func ShowStat1(w http.ResponseWriter, r *http.Request) {
-	temp := viper.GetString("temp.temp")
+	//temp := viper.GetString("temp.temp")
 
 	render(w, "header.html")
-	table1(w, r, temp)
+	table1(w, r)
 	//tableAll(w, r)
 	render(w, "footer.html")
 	//os.RemoveAll("file/temp/file")
@@ -72,6 +72,31 @@ func render(w http.ResponseWriter, tmpl string) {
 //	}
 //}
 
+func head(w http.ResponseWriter, r *http.Request) string {
+
+	r.FormValue("name")
+	r.ParseForm()
+	date := r.Form.Get("calendar")
+	html :=`<tr class="bg-info">
+		<td>Имя файла</td>
+		<td>Дата</td>
+		<td>Прошло дней</td>
+		<td>Размер</td>
+		</tr><form action="" method="get" id="bootstrapSelectForm" class="form-horizontal">
+		<div class="form-group">
+     	        <label class="col-xs-5 control-label"></label>
+      		<div class="col-xs-2 selectContainer">
+      		<p><input type="date" name="calendar" class="form-control"/></p>
+		<p><p><input type="submit" class="btn btn-primary" value="Показать"></p></p>
+		</div></div>
+		</form>`
+	selectTemplate, err := template.New("head").Parse(string(html))
+	if err != nil {
+		panic(err)
+	}
+	selectTemplate.Execute(w, date)
+	return date
+}
 func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 
 	window :=viper.GetStringMap("windows")
@@ -158,17 +183,13 @@ func table(w http.ResponseWriter, r *http.Request, dirTemp string) {
 	}
 }
 
-func table1(w http.ResponseWriter, r *http.Request, dirTemp string) {
-	data, okno := htmlRang(w, r)
-	fmt.Printf("data: %v \n", data)
-	fmt.Printf("okno: %v \n", okno)
-	//oknoS := "file/" +  okno + "/"
-	//fmt.Printf("oknoS: %v \n", oknoS)
-	//
+func table1(w http.ResponseWriter, r *http.Request) {
+	date := head(w, r)
+	fmt.Printf("date: %v \n", date)
 	//fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"5\" >"+ okno +"</td></tr>")
-	dir := viper.GetString("dir.dirFile")
+	dir := viper.GetString("dirallfiles.dir")
 	fmt.Printf("dir: %v \n", dir)
-	listDirZip := listfilescler("file/", ".zip") //2017-03-29
+	listDirZip := listfiles(dir, ".zip", date) //2017-03-29
 
 	for i := range listDirZip {
 		//unzip(dirTemp, dirTemp+listDirZip[i])
