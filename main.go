@@ -34,7 +34,7 @@ func conf() {
 }
 
 func ShowStat(w http.ResponseWriter, r *http.Request) {
-	temp := viper.GetString("temp.temp")
+	temp := viper.GetString("temp.dir")
 
 	render(w, "header.html")
 	tableAudio(w, r, temp)
@@ -142,13 +142,14 @@ func tableAudio(w http.ResponseWriter, r *http.Request, dirTemp string) {
 	data, okno := htmlRang(w, r)
 	dir := viper.GetString("dirAllFiles.dir")
 	oknoS := dir + okno
-
+	fmt.Printf("oknoS: %v \n", oknoS)
 	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"5\" >"+ okno +"</td></tr>")
 
 	listDirZip := listfiles(oknoS, ".zip", data) //2017-03-29
-
+	fmt.Printf("listDirZip: %v \n", listDirZip)
 	for i := range listDirZip {
 		unzip(listDirZip[i], dirTemp + listDirZip[i])
+
 		daysAgo := daysAgo(listDirZip[i], day)
 		dcreat := dataCreate(listDirZip[i])
 		dcreatf := dcreat.Format("2006-01-02")
@@ -157,9 +158,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request, dirTemp string) {
 
 		listDirTemp := listfilescler(dirTemp, ".wav")
 		dirtemp := listDirTemp[i]
-
-		//fmt.Printf("dirtemp1: %v \n", dirtemp)
-
+		fmt.Printf("dirtemp: %v \n", dirtemp)
 		fmt.Fprintf(w, "<tr>" +
 			"<td align=\"left\" \">%s</td>" +
 			"<td align=\"center\" >%s</td>" +
@@ -213,6 +212,9 @@ func runHTTP(dir string) {
 	http.HandleFunc("/monit", ShowStat1)
 	http.HandleFunc("/audio", ShowStat)
 	log.Println("localhost:8080 Listening...")
+
+	//http.Handle("/file/", http.StripPrefix("/file/", http.FileServer(http.Dir("D:/blabla/"))))
+
 	http.HandleFunc(dir, func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
 	})

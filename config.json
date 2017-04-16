@@ -9,7 +9,7 @@
     "Окно №7":"Окно №7"
   },
   "temp": {
-    "temp": "file/temp/"
+    "dir": "file/temp/"
   },
   "dirServer": {
     "dir": "/file/"
