@@ -9,8 +9,8 @@
     "Окно №7":"Окно №7"
   },
   "dir": {
-    "temp": "file/temp/",
-    "Server": "/file/",
-    "AllFiles": "file/"
+    "temp": "/blabla/temp/",
+    "Server": "/blabla/",
+    "AllFiles": "/blabla/"
   }
 }
