@@ -17,11 +17,15 @@ import (
 var day = time.Now()
 
 func main() {
+	//load config
 	conf()
-	dir := viper.GetString("dir.dirServer")
+
+	//run http server
+	dir := viper.GetString("dir.Server")
 	runHTTP(dir)
 }
 
+//config JSON file init
 func conf() {
 	viper.SetConfigType("json")
 	viper.SetConfigName("config")
@@ -33,6 +37,7 @@ func conf() {
 	viper.SetDefault("msg", "Hello World (default)")
 }
 
+//render page audio lessen
 func ShowStat(w http.ResponseWriter, r *http.Request) {
 	temp := viper.GetString("dir.temp")
 
@@ -42,12 +47,14 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 	//os.RemoveAll("file/temp/file")
 }
 
+// render page stat all file in all folder
 func ShowStat1(w http.ResponseWriter, r *http.Request) {
 	render(w, "header.html")
 	tableAllMonit(w, r)
 	render(w, "footer.html")
 }
 
+//func render template
 func render(w http.ResponseWriter, tmpl string) {
 	tmpl = fmt.Sprintf("templates/%s", tmpl)
 	t, err := template.ParseFiles(tmpl)
@@ -67,6 +74,7 @@ func render(w http.ResponseWriter, tmpl string) {
 //	}
 //}
 
+//render table, calendar and button for table monit
 func head(w http.ResponseWriter, r *http.Request) string {
 
 	r.FormValue("name")
@@ -93,6 +101,8 @@ func head(w http.ResponseWriter, r *http.Request) string {
 	selectTemplate.Execute(w, date)
 	return date
 }
+
+//render table, calendar and button for table audio
 func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 
 	window :=viper.GetStringMap("windows")
@@ -132,15 +142,17 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 	return date, okno
 }
 
+//render template header.html and footer.html
 func templat(w http.ResponseWriter, r *http.Request)  {
 	render(w, "header.html")
 	render(w, "footer.html")
 }
 
+//render tableaudio
 func tableAudio(w http.ResponseWriter, r *http.Request, dirTemp string) {
 
 	data, okno := htmlRang(w, r)
-	dir := viper.GetString("dir.dirAllFiles")
+	dir := viper.GetString("dir.AllFiles")
 	oknoS := dir + okno
 	fmt.Printf("oknoS: %v \n", oknoS)
 	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"5\" >"+ okno +"</td></tr>")
@@ -173,9 +185,10 @@ func tableAudio(w http.ResponseWriter, r *http.Request, dirTemp string) {
 	}
 }
 
+//render table motin
 func tableAllMonit(w http.ResponseWriter, r *http.Request) {
 	date := head(w, r)
-	dir := viper.GetString("dir.dirAllFiles")
+	dir := viper.GetString("dir.AllFiles")
 	listDirZip := listfiles(dir, ".zip", date) //2017-03-29
 
 	for i := range listDirZip {
@@ -207,6 +220,7 @@ func tableAllMonit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//func http server
 func runHTTP(dir string) {
 	http.HandleFunc("/", templat)
 	http.HandleFunc("/monit", ShowStat1)
@@ -225,6 +239,7 @@ func runHTTP(dir string) {
 	http.ListenAndServe(":8080", nil)
 }
 
+//convert size file from int64 to string and convert in humans format
 func convertSize(size int64) (string, error) {
 	if size == 0 {
 		return "0B", nil
@@ -235,6 +250,7 @@ func convertSize(size int64) (string, error) {
 	return humanSize, nil
 }
 
+//func return time date create files
 func dataCreate(path string) time.Time {
 	file, err := os.Stat(path)
 	if err != nil {
@@ -247,6 +263,7 @@ func dataCreate(path string) time.Time {
 	return modifiedtime
 }
 
+//func calculate dais ago
 func daysAgo(path string, now time.Time) float64 {
 	dataCreate(path)
 	file, err := os.Stat(path)
@@ -262,6 +279,7 @@ func daysAgo(path string, now time.Time) float64 {
 	return days
 }
 
+//func return file size string format
 func sizeFile(path string) string {
 
 	stat, err := os.Stat(path)
@@ -272,6 +290,7 @@ func sizeFile(path string) string {
 	return sizeStr
 }
 
+//func return file size int64 format
 func sizeFileint(path string) int64 {
 
 	stat, err := os.Stat(path)
@@ -282,6 +301,7 @@ func sizeFileint(path string) int64 {
 	return sizeStr
 }
 
+//func return list files in dir appropriate type file and date create
 func listfiles(rootpath string, typefile string, data string) []string {
 
 	list := make([]string, 0, 10)
@@ -304,6 +324,7 @@ func listfiles(rootpath string, typefile string, data string) []string {
 	return list
 }
 
+//func return list files in dir appropriate type file
 func listfilescler (rootpath string, typefile string) []string {
 
 	list := make([]string, 0, 10)
@@ -322,6 +343,7 @@ func listfilescler (rootpath string, typefile string) []string {
 	return list
 }
 
+//unzip file
 func unzip(archive, target string) error {
 	reader, err := zip.OpenReader(archive)
 	if err != nil {

@@ -10,7 +10,7 @@
   },
   "dir": {
     "temp": "file/temp/",
-    "dirServer": "/file/",
-    "dirAllFiles": "file/"
+    "Server": "/file/",
+    "AllFiles": "file/"
   }
 }
