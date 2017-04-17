@@ -8,13 +8,9 @@
     "Окно №6":"Окно №6",
     "Окно №7":"Окно №7"
   },
-  "temp": {
-    "dir": "file/temp/"
-  },
-  "dirServer": {
-    "dir": "/file/"
-  },
-  "dirAllFiles": {
-    "dir": "file/"
+  "dir": {
+    "temp": "file/temp/",
+    "dirServer": "/file/",
+    "dirAllFiles": "file/"
   }
 }

@@ -18,7 +18,7 @@ var day = time.Now()
 
 func main() {
 	conf()
-	dir := viper.GetString("dirServer.dir")
+	dir := viper.GetString("dir.dirServer")
 	runHTTP(dir)
 }
 
@@ -34,7 +34,7 @@ func conf() {
 }
 
 func ShowStat(w http.ResponseWriter, r *http.Request) {
-	temp := viper.GetString("temp.dir")
+	temp := viper.GetString("dir.temp")
 
 	render(w, "header.html")
 	tableAudio(w, r, temp)
@@ -140,7 +140,7 @@ func templat(w http.ResponseWriter, r *http.Request)  {
 func tableAudio(w http.ResponseWriter, r *http.Request, dirTemp string) {
 
 	data, okno := htmlRang(w, r)
-	dir := viper.GetString("dirAllFiles.dir")
+	dir := viper.GetString("dir.dirAllFiles")
 	oknoS := dir + okno
 	fmt.Printf("oknoS: %v \n", oknoS)
 	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"5\" >"+ okno +"</td></tr>")
@@ -175,7 +175,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request, dirTemp string) {
 
 func tableAllMonit(w http.ResponseWriter, r *http.Request) {
 	date := head(w, r)
-	dir := viper.GetString("dirAllFiles.dir")
+	dir := viper.GetString("dir.dirAllFiles")
 	listDirZip := listfiles(dir, ".zip", date) //2017-03-29
 
 	for i := range listDirZip {
@@ -213,11 +213,12 @@ func runHTTP(dir string) {
 	http.HandleFunc("/audio", ShowStat)
 	log.Println("localhost:8080 Listening...")
 
-	//http.Handle("/file/", http.StripPrefix("/file/", http.FileServer(http.Dir("D:/blabla/"))))
+	//http.Handle("/temp", http.StripPrefix("/temp", http.FileServer(http.Dir("D:/blabla/temp"))))
 
 	http.HandleFunc(dir, func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
 	})
+
 	http.HandleFunc("/bootstrap/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
 	})
