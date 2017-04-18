@@ -78,25 +78,11 @@ func head(w http.ResponseWriter, r *http.Request) string {
 	r.FormValue("name")
 	r.ParseForm()
 	date := r.Form.Get("calendar")
-	html :=`<tr class="bg-info">
-		<td>Имя файла</td>
-		<td>Дата</td>
-		<td>Прошло дней</td>
-		<td>Размер</td>
-		</tr><form action="" method="get" id="bootstrapSelectForm" class="form-horizontal">
-		<div class="form-group">
-     	        <label class="col-xs-5 control-label"></label>
-      		<div class="col-xs-2 selectContainer">
-      		<h4>Выбирите дату</h4>
-      		<p><input type="date" name="calendar" class="form-control"/></p>
-		<p><p><input type="submit" class="btn btn-primary" value="Показать"></p></p>
-		</div></div>
-		</form>`
-	selectTemplate, err := template.New("head").Parse(string(html))
+	t, err := template.ParseFiles("templates/headtpl.html")
 	if err != nil {
 		panic(err)
 	}
-	selectTemplate.Execute(w, date)
+	t.Execute(w, date)
 	return date
 }
 
@@ -110,33 +96,11 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 
 	date := r.Form.Get("calendar")
 	okno := r.Form.Get("okno")
-		html :=`<tr class="bg-info">
-		<td>Имя файла</td>
-		<td>Дата</td>
-		<td>Прошло дней</td>
-		<td>Размер</td>
-		<td>Аудио</td>
-		</tr>
-		<form action="" method="get" id="bootstrapSelectForm" class="form-horizontal">
-		<div class="form-group">
-     	        <label class="col-xs-5 control-label"></label>
-      		<div class="col-xs-2 selectContainer">
-      		<h4>Выбирите дату</h4>
-      		<p><input type="date" name="calendar" class="form-control" /></p>
-      		<h4>Выбирите окно</h4>
-		<select id="okno" name="okno" class="form-control">
-		   {{range $key, $value := .}}
-		     <option value="{{ $value }}">{{ $key }}</option>
-		   {{end}}
-		</select>
-		<p><p><input type="submit" class="btn btn-primary" value="Показать"></p></p>
-		</div></div>
-		</form>`
-	selectTemplate, err := template.New("select").Parse(string(html))
+	t, err := template.ParseFiles("templates/range.html")
 	if err != nil {
 		panic(err)
 	}
-	selectTemplate.Execute(w, window)
+	t.Execute(w, window)
 	return date, okno
 }
 
