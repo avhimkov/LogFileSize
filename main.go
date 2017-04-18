@@ -57,10 +57,12 @@ func render(w http.ResponseWriter, tmpl string) {
 	tmpl = fmt.Sprintf("templates/%s", tmpl)
 	t, err := template.ParseFiles(tmpl)
 	if err != nil {
+		fmt.Fprint(w, "not found 404")
 		log.Print("template parsing error: ", err)
 	}
 	err = t.Execute(w, "")
 	if err != nil {
+		fmt.Fprint(w, "not found 404")
 		log.Print("template executing error: ", err)
 	}
 }
@@ -80,6 +82,7 @@ func head(w http.ResponseWriter, r *http.Request) string {
 	date := r.Form.Get("calendar")
 	t, err := template.ParseFiles("templates/headtpl.html")
 	if err != nil {
+		fmt.Fprint(w, "not found 404")
 		panic(err)
 	}
 	t.Execute(w, date)
@@ -98,6 +101,7 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 	okno := r.Form.Get("okno")
 	t, err := template.ParseFiles("templates/range.html")
 	if err != nil {
+		fmt.Fprint(w, "not found 404")
 		panic(err)
 	}
 	t.Execute(w, window)
