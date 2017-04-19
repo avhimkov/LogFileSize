@@ -112,8 +112,6 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 	return date, okno
 }
 
-
-
 //render tableaudio
 func tableAudio(w http.ResponseWriter, r *http.Request, dirTemp string) {
 
