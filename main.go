@@ -112,6 +112,8 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 	return date, okno
 }
 
+
+
 //render tableaudio
 func tableAudio(w http.ResponseWriter, r *http.Request, dirTemp string) {
 
@@ -202,11 +204,6 @@ func runHTTP() {
 	http.HandleFunc(dir, func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
 	})
-
-	http.HandleFunc("/temp/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, r.URL.Path[1:])
-	})
-
 
 	http.HandleFunc("/bootstrap/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
