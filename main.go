@@ -39,12 +39,13 @@ func conf() {
 
 //render page audio lessen
 func ShowStat(w http.ResponseWriter, r *http.Request) {
+	//defer os.RemoveAll("file/temp/file")
+
 	temp := viper.GetString("dir.temp")
 
 	render(w, "header.html")
 	tableAudio(w, r, temp)
 	render(w, "footer.html")
-	//os.RemoveAll("file/temp/file")
 }
 
 // render page stat all file in all folder
