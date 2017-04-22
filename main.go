@@ -12,6 +12,8 @@ import (
 	"time"
 	"archive/zip"
 	"github.com/spf13/viper"
+	//"sync"
+	//"errors"
 )
 
 var day = time.Now()
@@ -112,8 +114,6 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 	return date, okno
 }
 
-
-
 //render tableaudio
 func tableAudio(w http.ResponseWriter, r *http.Request, dirTemp string) {
 
@@ -160,6 +160,10 @@ func tableAllMonit(w http.ResponseWriter, r *http.Request) {
 	date := head(w, r)
 	dir := viper.GetString("dir.AllFiles")
 	listDirZip := listfiles(dir, ".zip", date) //2017-03-29
+
+	//go func (listDirZip []string) {
+	//	listfilescler(dir, ".zip")
+	//}()
 
 	for i := range listDirZip {
 		daysAgo := daysAgo(listDirZip[i], day)
