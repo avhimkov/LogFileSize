@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/viper"
 	//"sync"
 	//"errors"
+	//"io/ioutil"
 )
 
 var day = time.Now()
@@ -41,10 +42,10 @@ func conf() {
 func ShowStat(w http.ResponseWriter, r *http.Request) {
 	//defer os.RemoveAll("file/temp/file")
 
-	temp := viper.GetString("dir.temp")
+	//temp := viper.GetString("dir.temp")
 
 	render(w, "header.html")
-	tableAudio(w, r, temp)
+	tableAudio(w, r)
 	render(w, "footer.html")
 }
 
@@ -116,21 +117,28 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 }
 
 //render tableaudio
-func tableAudio(w http.ResponseWriter, r *http.Request, dirTemp string) {
+func tableAudio(w http.ResponseWriter, r *http.Request) {
 
 	dir := viper.GetString("dir.AllFiles")
+	Temp := viper.GetString("dir.temp")
+
+	//dirTemp, err := ioutil.TempFile(os.TempDir(), "wav")
+	//if err != nil {
+	//	fmt.Fprint(w, "<p>TEMP ERROR</p>")
+	//	panic(err)
+	//}
+	//defer os.Remove(dirTemp.Name())
 
 	data, okno := htmlRang(w, r)
 	oknoS := dir + okno
 	fmt.Printf("oknoS: %v \n", oknoS)
-	//unzip(dir, dirTemp)
 	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"5\" >"+ okno +"</td></tr>")
 
 	listDirZip := listfiles(oknoS, ".zip", data) //2017-03-29
 	fmt.Printf("listDirZip: %v \n", listDirZip)
 
 	for i := range listDirZip {
-		unzip(listDirZip[i], dirTemp + listDirZip[i])
+		unzip(listDirZip[i], Temp + listDirZip[i])
 
 		daysAgo := daysAgo(listDirZip[i], day)
 		dcreat := dataCreate(listDirZip[i])
@@ -138,7 +146,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request, dirTemp string) {
 		dir := listDirZip[i]
 		size := sizeFile(listDirZip[i])
 
-		listDirTemp := listfilescler(dirTemp, ".wav")
+		listDirTemp := listfilescler(Temp, ".wav")
 		dirtemp := listDirTemp[i]
 
 		fmt.Printf("dirtemp: %v \n", dirtemp)
