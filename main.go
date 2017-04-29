@@ -190,8 +190,8 @@ func tableAllMonit(w http.ResponseWriter, r *http.Request) {
 func runHTTP() {
 	dir := viper.GetString("dir.Server")
 
-	http.HandleFunc("/", templat)
-	http.HandleFunc("/monit", ShowStat1)
+	//http.HandleFunc("/", templat)
+	http.HandleFunc("/", ShowStat1)
 	http.HandleFunc("/audio", ShowStat)
 	log.Println("http://localhost:8080 Listening...")
 
