@@ -19,6 +19,9 @@ var day = time.Now()
 func main() {
 	//load config
 	conf()
+	temp := viper.GetString("dir.temp")
+	os.RemoveAll(temp)
+
 	//run http server
 	runHTTP()
 }
@@ -37,10 +40,6 @@ func conf() {
 
 //render page audio lessen
 func ShowStat(w http.ResponseWriter, r *http.Request) {
-	//defer os.RemoveAll("file/temp/file")
-
-	//temp := viper.GetString("dir.temp")
-
 	render(w, "header.html")
 	tableAudio(w, r)
 	render(w, "footer.html")
@@ -81,7 +80,6 @@ func render(w http.ResponseWriter, tmpl string) {
 
 //render table, calendar and button for table monit
 func head(w http.ResponseWriter, r *http.Request) string {
-
 	r.FormValue("name")
 	r.ParseForm()
 	date := r.Form.Get("calendar")
@@ -118,13 +116,6 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 
 	dir := viper.GetString("dir.AllFiles")
 	Temp := viper.GetString("dir.temp")
-
-	//dirTemp, err := ioutil.TempFile(os.TempDir(), "wav")
-	//if err != nil {
-	//	fmt.Fprint(w, "<p>TEMP ERROR</p>")
-	//	panic(err)
-	//}
-	//defer os.Remove(dirTemp.Name())
 
 	data, okno := htmlRang(w, r)
 	oknoS := dir + okno
@@ -166,10 +157,6 @@ func tableAllMonit(w http.ResponseWriter, r *http.Request) {
 	dir := viper.GetString("dir.AllFiles")
 	listDirZip := listfiles(dir, ".zip", date) //2017-03-29
 
-	//go func (listDirZip []string) {
-	//	listfilescler(dir, ".zip")
-	//}()
-
 	for i := range listDirZip {
 		daysAgo := daysAgo(listDirZip[i], day)
 		dcreat := dataCreate(listDirZip[i])
@@ -206,9 +193,7 @@ func runHTTP() {
 	http.HandleFunc("/", templat)
 	http.HandleFunc("/monit", ShowStat1)
 	http.HandleFunc("/audio", ShowStat)
-	log.Println("localhost:8080 Listening...")
-
-	//http.Handle("/file/", http.StripPrefix("/file/", http.FileServer(http.Dir("."))))
+	log.Println("http://localhost:8080 Listening...")
 
 	http.HandleFunc(dir, func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
