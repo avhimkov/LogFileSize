@@ -12,9 +12,6 @@ import (
 	"time"
 	"archive/zip"
 	"github.com/spf13/viper"
-	//"sync"
-	//"errors"
-	//"io/ioutil"
 )
 
 var day = time.Now()
@@ -158,7 +155,6 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 			"<td align=\"center\" >" +
 			"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>" +
 			"</td></tr>",
-
 			//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
 			dir, dcreatf, daysAgo, size, dirtemp)
 	}
