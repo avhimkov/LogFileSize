@@ -19,9 +19,9 @@ var day = time.Now()
 func main() {
 	//load config
 	conf()
+	//clear temp folder
 	temp := viper.GetString("dir.temp")
 	os.RemoveAll(temp)
-
 	//run http server
 	runHTTP()
 }
@@ -39,22 +39,16 @@ func conf() {
 }
 
 //render page audio lessen
-func ShowStat(w http.ResponseWriter, r *http.Request) {
+func AudioListen(w http.ResponseWriter, r *http.Request) {
 	render(w, "header.html")
 	tableAudio(w, r)
 	render(w, "footer.html")
 }
 
 // render page stat all file in all folder
-func ShowStat1(w http.ResponseWriter, r *http.Request) {
+func ShowStat(w http.ResponseWriter, r *http.Request) {
 	render(w, "header.html")
-	tableAllMonit(w, r)
-	render(w, "footer.html")
-}
-
-//render template header.html and footer.html
-func templat(w http.ResponseWriter, r *http.Request)  {
-	render(w, "header.html")
+	tableMonitoring(w, r)
 	render(w, "footer.html")
 }
 
@@ -70,13 +64,6 @@ func render(w http.ResponseWriter, tmpl string) {
 		log.Print("template executing error: ", err)
 	}
 }
-
-//func removeFile(target string) {
-//	err := os.Remove(target)
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//}
 
 //render table, calendar and button for table monit
 func head(w http.ResponseWriter, r *http.Request) string {
@@ -116,7 +103,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 
 	dir := viper.GetString("dir.AllFiles")
 	Temp := viper.GetString("dir.temp")
-
+	fmt.Printf("tableAudio: %v \n", dir)
 	data, okno := htmlRang(w, r)
 	oknoS := dir + okno
 	fmt.Printf("oknoS: %v \n", oknoS)
@@ -152,21 +139,22 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 }
 
 //render table motin
-func tableAllMonit(w http.ResponseWriter, r *http.Request) {
+func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 	date := head(w, r)
 	dir := viper.GetString("dir.AllFiles")
+	fmt.Printf("dirAllMonit: %v \n", dir)
 	listDirZip := listfiles(dir, ".zip", date) //2017-03-29
 
 	for i := range listDirZip {
+		smallfile := viper.GetInt64("size.file")
 		daysAgo := daysAgo(listDirZip[i], day)
 		dcreat := dataCreate(listDirZip[i])
 		dcreatf := dcreat.Format("2006-01-02")
 		dir := listDirZip[i]
 		size := sizeFile(listDirZip[i])
 		sizeint := sizeFileint(listDirZip[i])
-
 		fmt.Printf("sizeint: %v \n", sizeint)
-		if sizeint > 1000 {
+		if sizeint > smallfile{
 			fmt.Fprintf(w, "<tr>" +
 				"<td align=\"left\" \">%s</td>" +
 				"<td align=\"center\" >%s</td>" +
@@ -189,10 +177,8 @@ func tableAllMonit(w http.ResponseWriter, r *http.Request) {
 //func http server
 func runHTTP() {
 	dir := viper.GetString("dir.Server")
-
-	//http.HandleFunc("/", templat)
-	http.HandleFunc("/", ShowStat1)
-	http.HandleFunc("/audio", ShowStat)
+	http.HandleFunc("/", ShowStat)
+	http.HandleFunc("/audio", AudioListen)
 	log.Println("http://localhost:8080 Listening...")
 
 	http.HandleFunc(dir, func(w http.ResponseWriter, r *http.Request) {
