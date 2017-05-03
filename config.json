@@ -11,11 +11,10 @@
   "dir": {
     "temp": "file/temp/",
     "Server": "/file/",
-    "AllFiles": "/blabla1/",
+    "AllFiles": "/mnt/mfc-rec/",
     "ShareFolder": "smb://"
   },
   "size":{
     "file": 1000
   }
-
 }
