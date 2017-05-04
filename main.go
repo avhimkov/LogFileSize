@@ -14,14 +14,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-var day = time.Now()
+var (
+	day = time.Now()
+)
 
 func main() {
 	//load config
 	conf()
 	//clear temp folder
-	temp := viper.GetString("dir.temp")
-	os.RemoveAll(temp)
+		temp:= viper.GetString("dir.temp")
+		os.RemoveAll(temp)
 	//run http server
 	runHTTP()
 }
@@ -101,48 +103,44 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 //render tableaudio
 func tableAudio(w http.ResponseWriter, r *http.Request) {
 
-	dir := viper.GetString("dir.AllFiles")
-	Temp := viper.GetString("dir.temp")
-	fmt.Printf("tableAudio: %v \n", dir)
-	data, okno := htmlRang(w, r)
-	oknoS := dir + okno
-	fmt.Printf("oknoS: %v \n", oknoS)
-	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"5\" >"+ okno +"</td></tr>")
+		dir := viper.GetString("dir.AllFiles")
+		temp := viper.GetString("dir.temp")
+		data, okno := htmlRang(w, r)
+		oknoS := dir + okno
+		fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"5\" >"+ okno +"</td></tr>")
 
-	listDirZip := listfiles(oknoS, ".zip", data) //2017-03-29
-	fmt.Printf("listDirZip: %v \n", listDirZip)
+		listDirZip := listfiles(oknoS, ".zip", data) //2017-03-29
 
-	for i := range listDirZip {
-		unzip(listDirZip[i], Temp + listDirZip[i])
+		for i := range listDirZip {
+			unzip(listDirZip[i], temp + listDirZip[i])
 
-		daysAgo := daysAgo(listDirZip[i], day)
-		dcreat := dataCreate(listDirZip[i])
-		dcreatf := dcreat.Format("2006-01-02")
-		dir := listDirZip[i]
-		size := sizeFile(listDirZip[i])
+			daysAgo := daysAgo(listDirZip[i], day)
+			dcreat := dataCreate(listDirZip[i])
+			dcreatf := dcreat.Format("2006-01-02")
+			dir := listDirZip[i]
+			size := sizeFile(listDirZip[i])
 
-		listDirTemp := listfilescler(Temp, ".wav")
-		dirtemp := listDirTemp[i]
+			listDirTemp := listfilescler(temp, ".wav")
+			dirtemp := listDirTemp[i]
 
-		fmt.Printf("dirtemp: %v \n", dirtemp)
-		fmt.Fprintf(w, "<tr>" +
-			"<td align=\"left\" \">%s</td>" +
-			"<td align=\"center\" >%s</td>" +
-			"<td align=\"center\" >%.2f дней</td>" +
-			"<td align=\"center\">%s</td>" +
-			"<td align=\"center\" >" +
-			"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>" +
-			"</td></tr>",
-			//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
-			dir, dcreatf, daysAgo, size, dirtemp)
+			fmt.Fprintf(w, "<tr>" +
+				"<td align=\"left\" \">%s</td>" +
+				"<td align=\"center\" >%s</td>" +
+				"<td align=\"center\" >%.2f дней</td>" +
+				"<td align=\"center\">%s</td>" +
+				"<td align=\"center\" >" +
+				"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>" +
+				"</td></tr>",
+				//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
+				dir, dcreatf, daysAgo, size, dirtemp)
+		}
 	}
-}
+
 
 //render table motin
 func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 	date := head(w, r)
 	dir := viper.GetString("dir.AllFiles")
-	fmt.Printf("dirAllMonit: %v \n", dir)
 	listDirZip := listfiles(dir, ".zip", date) //2017-03-29
 
 	for i := range listDirZip {
@@ -153,7 +151,6 @@ func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 		dir := listDirZip[i]
 		size := sizeFile(listDirZip[i])
 		sizeint := sizeFileint(listDirZip[i])
-		fmt.Printf("sizeint: %v \n", sizeint)
 		if sizeint > smallfile{
 			fmt.Fprintf(w, "<tr>" +
 				"<td align=\"left\" \">%s</td>" +
@@ -176,12 +173,12 @@ func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 
 //func http server
 func runHTTP() {
-	dir := viper.GetString("dir.Server")
+	dirServer := viper.GetString("dir.Server")
 	http.HandleFunc("/", ShowStat)
 	http.HandleFunc("/audio", AudioListen)
 	log.Println("http://localhost:8080 Listening...")
 
-	http.HandleFunc(dir, func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc(dirServer, func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
 	})
 
