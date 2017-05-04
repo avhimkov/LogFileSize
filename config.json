@@ -11,8 +11,7 @@
   "dir": {
     "temp": "file/temp/",
     "Server": "/file/",
-    "AllFiles": "/mnt/mfc-rec/",
-    "ShareFolder": "smb://"
+    "AllFiles": "/blabla/"
   },
   "size":{
     "file": 1000

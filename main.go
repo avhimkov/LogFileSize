@@ -16,14 +16,14 @@ import (
 
 var (
 	day = time.Now()
+	temp = viper.GetString("dir.temp")
 )
 
 func main() {
 	//load config
 	conf()
 	//clear temp folder
-		temp:= viper.GetString("dir.temp")
-		os.RemoveAll(temp)
+	os.RemoveAll(temp)
 	//run http server
 	runHTTP()
 }
@@ -82,9 +82,9 @@ func head(w http.ResponseWriter, r *http.Request) string {
 }
 
 //render table, calendar and button for table audio
-func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
+func htmlRang(w http.ResponseWriter, r *http.Request) (string, string) {
 
-	window :=viper.GetStringMap("windows")
+	window := viper.GetStringMap("windows")
 
 	r.FormValue("name")
 	r.ParseForm()
@@ -103,39 +103,38 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string)  {
 //render tableaudio
 func tableAudio(w http.ResponseWriter, r *http.Request) {
 
-		dir := viper.GetString("dir.AllFiles")
-		temp := viper.GetString("dir.temp")
-		data, okno := htmlRang(w, r)
-		oknoS := dir + okno
-		fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"5\" >"+ okno +"</td></tr>")
+	dir := viper.GetString("dir.AllFiles")
+	temp := viper.GetString("dir.temp")
+	data, okno := htmlRang(w, r)
+	oknoS := dir + okno
+	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"5\" >"+okno+"</td></tr>")
 
-		listDirZip := listfiles(oknoS, ".zip", data) //2017-03-29
+	listDirZip := listfiles(oknoS, ".zip", data) //2017-03-29
 
-		for i := range listDirZip {
-			unzip(listDirZip[i], temp + listDirZip[i])
+	for i := range listDirZip {
+		unzip(listDirZip[i], temp+listDirZip[i])
 
-			daysAgo := daysAgo(listDirZip[i], day)
-			dcreat := dataCreate(listDirZip[i])
-			dcreatf := dcreat.Format("2006-01-02")
-			dir := listDirZip[i]
-			size := sizeFile(listDirZip[i])
+		daysAgo := daysAgo(listDirZip[i], day)
+		dcreat := dataCreate(listDirZip[i])
+		dcreatf := dcreat.Format("2006-01-02")
+		dir := listDirZip[i]
+		size := sizeFile(listDirZip[i])
 
-			listDirTemp := listfilescler(temp, ".wav")
-			dirtemp := listDirTemp[i]
+		listDirTemp := listfilescler(temp, ".wav")
+		dirtemp := listDirTemp[i]
 
-			fmt.Fprintf(w, "<tr>" +
-				"<td align=\"left\" \">%s</td>" +
-				"<td align=\"center\" >%s</td>" +
-				"<td align=\"center\" >%.2f дней</td>" +
-				"<td align=\"center\">%s</td>" +
-				"<td align=\"center\" >" +
-				"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>" +
-				"</td></tr>",
-				//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
-				dir, dcreatf, daysAgo, size, dirtemp)
-		}
+		fmt.Fprintf(w, "<tr>"+
+			"<td align=\"left\" \">%s</td>"+
+			"<td align=\"center\" >%s</td>"+
+			"<td align=\"center\" >%.2f дней</td>"+
+			"<td align=\"center\">%s</td>"+
+			"<td align=\"center\" >"+
+			"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>"+
+			"</td></tr>",
+			//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
+			dir, dcreatf, daysAgo, size, dirtemp)
 	}
-
+}
 
 //render table motin
 func tableMonitoring(w http.ResponseWriter, r *http.Request) {
@@ -151,20 +150,20 @@ func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 		dir := listDirZip[i]
 		size := sizeFile(listDirZip[i])
 		sizeint := sizeFileint(listDirZip[i])
-		if sizeint > smallfile{
-			fmt.Fprintf(w, "<tr>" +
-				"<td align=\"left\" \">%s</td>" +
-				"<td align=\"center\" >%s</td>" +
-				"<td align=\"center\" >%.2f дней</td>" +
-				"<td align=\"center\">%s</td>" +
+		if sizeint > smallfile {
+			fmt.Fprintf(w, "<tr>"+
+				"<td align=\"left\" \">%s</td>"+
+				"<td align=\"center\" >%s</td>"+
+				"<td align=\"center\" >%.2f дней</td>"+
+				"<td align=\"center\">%s</td>"+
 				"</tr>",
 				dir, dcreatf, daysAgo, size)
 		} else {
-			fmt.Fprintf(w, "<tr>" +
-				"<td bgcolor=\"#ffcc00\" align=\"left\" \">%s</td>" +
-				"<td bgcolor=\"#ffcc00\" align=\"center\" >%s</td>" +
-				"<td bgcolor=\"#ffcc00\" align=\"center\" >%.2f дней</td>" +
-				"<td bgcolor=\"#ffcc00\" align=\"center\">%s</td>" +
+			fmt.Fprintf(w, "<tr>"+
+				"<td bgcolor=\"#ffcc00\" align=\"left\" \">%s</td>"+
+				"<td bgcolor=\"#ffcc00\" align=\"center\" >%s</td>"+
+				"<td bgcolor=\"#ffcc00\" align=\"center\" >%.2f дней</td>"+
+				"<td bgcolor=\"#ffcc00\" align=\"center\">%s</td>"+
 				"</tr>",
 				dir, dcreatf, daysAgo, size)
 		}
@@ -256,7 +255,7 @@ func listfiles(rootpath string, typefile string, data string) []string {
 	list := make([]string, 0, 10)
 
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
-		modification:=info.ModTime().UTC().Format("2006-01-02")
+		modification := info.ModTime().UTC().Format("2006-01-02")
 		if info.IsDir() {
 			return nil
 		}
@@ -274,7 +273,7 @@ func listfiles(rootpath string, typefile string, data string) []string {
 }
 
 //func return list files in dir appropriate type file
-func listfilescler (rootpath string, typefile string) []string {
+func listfilescler(rootpath string, typefile string) []string {
 
 	list := make([]string, 0, 10)
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
