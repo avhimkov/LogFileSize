@@ -16,13 +16,13 @@ import (
 
 var (
 	day = time.Now()
-	temp = viper.GetString("dir.temp")
 )
 
 func main() {
 	//load config
 	conf()
 	//clear temp folder
+	var temp = viper.GetString("dir.temp")
 	os.RemoveAll(temp)
 	//run http server
 	runHTTP()
@@ -109,15 +109,20 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 	dir := viper.GetString("dir.AllFiles")
 	temp := viper.GetString("dir.temp")
 	data, okno, timemodif := htmlRang(w, r)
+	fmt.Printf("timemodif[%v]\n", timemodif)
 	oknoS := dir + okno
-	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"5\" >" + okno + " Время:" + timemodif + "</td></tr>")
+	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >" + okno + " Время:" + timemodif + "</td></tr>")
 
-	listDirZip := listfiles(oknoS, ".zip", data, "") //2017-03-29
+	listDirZip := listfiles(oknoS, ".zip", data, timemodif) //2017-03-29
 
 	for i := range listDirZip {
 		unzip(listDirZip[i], temp+listDirZip[i])
 
 		daysAgo := daysAgo(listDirZip[i], day)
+		//hoursAgo := hoursAgo(listDirZip[i], day)
+		//hoursAgo := hoursAgo(listDirZip[i], day)
+		dhoursAgo := dataCreate(listDirZip[i])
+		dhoursAgof := dhoursAgo.Format("08:10:00")
 		dcreat := dataCreate(listDirZip[i])
 		dcreatf := dcreat.Format("2006-01-02")
 		dir := listDirZip[i]
@@ -130,12 +135,13 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 			"<td align=\"left\" \">%s</td>" +
 			"<td align=\"center\" >%s</td>" +
 			"<td align=\"center\" >%.2f дней</td>" +
+			"<td align=\"center\" >%s часов</td>" +
 			"<td align=\"center\">%s</td>" +
-			"<td align=\"center\" >" +
+			"<td align=\"center\">" +
 			"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>" +
 			"</td></tr>",
 			//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
-			dir, dcreatf, daysAgo, size, dirtemp)
+			dir, dcreatf, daysAgo, dhoursAgof, size, dirtemp)
 	}
 }
 
@@ -230,6 +236,21 @@ func daysAgo(path string, now time.Time) float64 {
 	return days
 }
 
+func hoursAgo(path string, now time.Time) float64 {
+	dataCreate(path)
+	file, err := os.Stat(path)
+	if err != nil {
+		fmt.Println(err)
+	}
+	modifiedtime := file.ModTime()
+	if err != nil {
+		fmt.Println(err)
+	}
+	diff := now.Sub(modifiedtime)
+	days := float64(diff.Hours())
+	return days
+}
+
 //func return file size string format
 func sizeFile(path string) string {
 
@@ -259,16 +280,16 @@ func listfiles(rootpath string, typefile string, data string, time string) []str
 
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
 		modification := info.ModTime().UTC().Format("2006-01-02")
-		//timetempleat := info.ModTime().UTC().Format("HH:MM")
+		timetempleat := info.ModTime().UTC().Format("HH:MM:SS")
 		if info.IsDir() {
 			return nil
 		}
 		if modification == data {
-			//if timetempleat == time {
+			if timetempleat >= time {
 				if filepath.Ext(path) == typefile {
 					list = append(list, path)
 				}
-			//}
+			}
 
 		}
 		return nil
