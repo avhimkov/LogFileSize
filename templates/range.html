@@ -1,3 +1,4 @@
+{{define "okno"}}
 <tr class="bg-info">
     <td>Имя файла</td>
     <td>Дата</td>
@@ -17,6 +18,15 @@
                 <option value="{{ $value }}">{{ $key }}</option>
                 {{end}}
             </select>
+            {{end}}
+            {{define "time"}}
+            <h4>Выбирите время</h4>
+            <select id="time" name="time" class="form-control">
+                {{range $keytime, $valuetime := .}}
+                <option value="{{ $valuetime }}">{{ $keytime }}</option>
+                {{end}}
+            </select>
             <p><p><input type="submit" class="btn btn-primary" value="Показать"></p></p>
         </div></div>
 </form>
+{{end}}

@@ -82,22 +82,25 @@ func head(w http.ResponseWriter, r *http.Request) string {
 }
 
 //render table, calendar and button for table audio
-func htmlRang(w http.ResponseWriter, r *http.Request) (string, string) {
+func htmlRang(w http.ResponseWriter, r *http.Request) (string, string, string) {
 
 	window := viper.GetStringMap("windows")
+	timeform := viper.GetStringMap("time")
 
 	r.FormValue("name")
 	r.ParseForm()
 
 	date := r.Form.Get("calendar")
 	okno := r.Form.Get("okno")
+	timemodif := r.Form.Get("time")
 	t, err := template.ParseFiles("templates/range.html")
 	if err != nil {
 		fmt.Fprint(w, "<p>page not found 404</p>")
 		panic(err)
 	}
-	t.Execute(w, window)
-	return date, okno
+	t.ExecuteTemplate(w, "okno", window)
+	t.ExecuteTemplate(w, "time", timeform)
+	return date, okno, timemodif
 }
 
 //render tableaudio
@@ -105,11 +108,11 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 
 	dir := viper.GetString("dir.AllFiles")
 	temp := viper.GetString("dir.temp")
-	data, okno := htmlRang(w, r)
+	data, okno, timemodif := htmlRang(w, r)
 	oknoS := dir + okno
-	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"5\" >"+okno+"</td></tr>")
+	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"5\" >" + okno + " Время:" + timemodif + "</td></tr>")
 
-	listDirZip := listfiles(oknoS, ".zip", data) //2017-03-29
+	listDirZip := listfiles(oknoS, ".zip", data, "") //2017-03-29
 
 	for i := range listDirZip {
 		unzip(listDirZip[i], temp+listDirZip[i])
@@ -123,13 +126,13 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 		listDirTemp := listfilescler(temp, ".wav")
 		dirtemp := listDirTemp[i]
 
-		fmt.Fprintf(w, "<tr>"+
-			"<td align=\"left\" \">%s</td>"+
-			"<td align=\"center\" >%s</td>"+
-			"<td align=\"center\" >%.2f дней</td>"+
-			"<td align=\"center\">%s</td>"+
-			"<td align=\"center\" >"+
-			"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>"+
+		fmt.Fprintf(w, "<tr>" +
+			"<td align=\"left\" \">%s</td>" +
+			"<td align=\"center\" >%s</td>" +
+			"<td align=\"center\" >%.2f дней</td>" +
+			"<td align=\"center\">%s</td>" +
+			"<td align=\"center\" >" +
+			"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>" +
 			"</td></tr>",
 			//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
 			dir, dcreatf, daysAgo, size, dirtemp)
@@ -140,7 +143,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 	date := head(w, r)
 	dir := viper.GetString("dir.AllFiles")
-	listDirZip := listfiles(dir, ".zip", date) //2017-03-29
+	listDirZip := listfiles(dir, ".zip", date, "") //2017-03-29
 
 	for i := range listDirZip {
 		smallfile := viper.GetInt64("size.file")
@@ -250,19 +253,23 @@ func sizeFileint(path string) int64 {
 }
 
 //func return list files in dir appropriate type file and date create
-func listfiles(rootpath string, typefile string, data string) []string {
+func listfiles(rootpath string, typefile string, data string, time string) []string {
 
 	list := make([]string, 0, 10)
 
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
 		modification := info.ModTime().UTC().Format("2006-01-02")
+		//timetempleat := info.ModTime().UTC().Format("HH:MM")
 		if info.IsDir() {
 			return nil
 		}
 		if modification == data {
-			if filepath.Ext(path) == typefile {
-				list = append(list, path)
-			}
+			//if timetempleat == time {
+				if filepath.Ext(path) == typefile {
+					list = append(list, path)
+				}
+			//}
+
 		}
 		return nil
 	})
