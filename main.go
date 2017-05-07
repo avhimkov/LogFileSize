@@ -106,29 +106,29 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string, string) {
 //render tableaudio
 func tableAudio(w http.ResponseWriter, r *http.Request) {
 
+	archive := viper.GetString("filetype.archive")
 	dir := viper.GetString("dir.AllFiles")
 	temp := viper.GetString("dir.temp")
-	data, okno, timemodif := htmlRang(w, r)
+	date, okno, timemodif := htmlRang(w, r)
 	fmt.Printf("timemodif[%v]\n", timemodif)
 	oknoS := dir + okno
 	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >" + okno + " Время:" + timemodif + "</td></tr>")
 
-	listDirZip := listfiles(oknoS, ".zip", data, timemodif) //2017-03-29
+	listDirArchive := listfiles(oknoS, archive, date, timemodif) //2017-03-29
 
-	for i := range listDirZip {
-		unzip(listDirZip[i], temp+listDirZip[i])
+	for i := range listDirArchive {
+		audiofile := viper.GetString("filetype.audiofile")
+		unzip(listDirArchive[i], temp+listDirArchive[i])
 
-		daysAgo := daysAgo(listDirZip[i], day)
-		//hoursAgo := hoursAgo(listDirZip[i], day)
-		//hoursAgo := hoursAgo(listDirZip[i], day)
-		dhoursAgo := dataCreate(listDirZip[i])
+		daysAgo := daysAgo(listDirArchive[i], day)
+		dhoursAgo := dateCreate(listDirArchive[i])
 		dhoursAgof := dhoursAgo.Format("08:10:00")
-		dcreat := dataCreate(listDirZip[i])
+		dcreat := dateCreate(listDirArchive[i])
 		dcreatf := dcreat.Format("2006-01-02")
-		dir := listDirZip[i]
-		size := sizeFile(listDirZip[i])
+		dir := listDirArchive[i]
+		size := sizeFile(listDirArchive[i])
 
-		listDirTemp := listfilescler(temp, ".wav")
+		listDirTemp := listFilesClear(temp, audiofile)
 		dirtemp := listDirTemp[i]
 
 		fmt.Fprintf(w, "<tr>" +
@@ -147,18 +147,20 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 
 //render table motin
 func tableMonitoring(w http.ResponseWriter, r *http.Request) {
-	date := head(w, r)
-	dir := viper.GetString("dir.AllFiles")
-	listDirZip := listfiles(dir, ".zip", date, "") //2017-03-29
 
-	for i := range listDirZip {
+	date := head(w, r)
+	archive := viper.GetString("filetype.archive")
+	dir := viper.GetString("dir.AllFiles")
+	listDirArchive := listfiles(dir, archive, date, "") //2017-03-29
+
+	for i := range listDirArchive {
 		smallfile := viper.GetInt64("size.file")
-		daysAgo := daysAgo(listDirZip[i], day)
-		dcreat := dataCreate(listDirZip[i])
+		daysAgo := daysAgo(listDirArchive[i], day)
+		dcreat := dateCreate(listDirArchive[i])
 		dcreatf := dcreat.Format("2006-01-02")
-		dir := listDirZip[i]
-		size := sizeFile(listDirZip[i])
-		sizeint := sizeFileint(listDirZip[i])
+		dir := listDirArchive[i]
+		size := sizeFile(listDirArchive[i])
+		sizeint := sizeFileInt(listDirArchive[i])
 		if sizeint > smallfile {
 			fmt.Fprintf(w, "<tr>"+
 				"<td align=\"left\" \">%s</td>"+
@@ -208,7 +210,7 @@ func convertSize(size int64) (string, error) {
 }
 
 //func return time date create files
-func dataCreate(path string) time.Time {
+func dateCreate(path string) time.Time {
 	file, err := os.Stat(path)
 	if err != nil {
 		fmt.Println(err)
@@ -222,7 +224,7 @@ func dataCreate(path string) time.Time {
 
 //func calculate dais ago
 func daysAgo(path string, now time.Time) float64 {
-	dataCreate(path)
+	dateCreate(path)
 	file, err := os.Stat(path)
 	if err != nil {
 		fmt.Println(err)
@@ -236,20 +238,20 @@ func daysAgo(path string, now time.Time) float64 {
 	return days
 }
 
-func hoursAgo(path string, now time.Time) float64 {
-	dataCreate(path)
-	file, err := os.Stat(path)
-	if err != nil {
-		fmt.Println(err)
-	}
-	modifiedtime := file.ModTime()
-	if err != nil {
-		fmt.Println(err)
-	}
-	diff := now.Sub(modifiedtime)
-	days := float64(diff.Hours())
-	return days
-}
+//func hoursAgo(path string, now time.Time) float64 {
+//	dateCreate(path)
+//	file, err := os.Stat(path)
+//	if err != nil {
+//		fmt.Println(err)
+//	}
+//	modifiedtime := file.ModTime()
+//	if err != nil {
+//		fmt.Println(err)
+//	}
+//	diff := now.Sub(modifiedtime)
+//	days := float64(diff.Hours())
+//	return days
+//}
 
 //func return file size string format
 func sizeFile(path string) string {
@@ -263,7 +265,7 @@ func sizeFile(path string) string {
 }
 
 //func return file size int64 format
-func sizeFileint(path string) int64 {
+func sizeFileInt(path string) int64 {
 
 	stat, err := os.Stat(path)
 	sizeStr := stat.Size()
@@ -290,7 +292,6 @@ func listfiles(rootpath string, typefile string, data string, time string) []str
 					list = append(list, path)
 				}
 			}
-
 		}
 		return nil
 	})
@@ -301,7 +302,7 @@ func listfiles(rootpath string, typefile string, data string, time string) []str
 }
 
 //func return list files in dir appropriate type file
-func listfilescler(rootpath string, typefile string) []string {
+func listFilesClear(rootpath string, typefile string) []string {
 
 	list := make([]string, 0, 10)
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
