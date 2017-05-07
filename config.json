@@ -23,15 +23,15 @@
     "19:00": "19"
   },
   "dir": {
-    "temp": "file/temp/",
-    "Server": "/file/",
-    "AllFiles": "/blabla/"
+    "temp":   "file/temp/",
+    "server": "/file/",
+    "works":  "/blabla/"
   },
   "size":{
     "file": 1000
   },
   "filetype": {
-    "archivefile":".zip",
-    "audiofile":".wav"
+    "archivefile": ".zip",
+    "audiofile":   ".wav"
   }
 }

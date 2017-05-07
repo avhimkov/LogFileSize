@@ -1,4 +1,4 @@
-{{define "okno"}}
+{{define "window"}}
 <tr class="bg-info">
     <td>Имя файла</td>
     <td>Дата</td>
@@ -14,7 +14,7 @@
             <h4>Выбирите дату</h4>
             <p><input type="date" name="calendar" class="form-control" /></p>
             <h4>Выбирите окно</h4>
-            <select id="okno" name="okno" class="form-control">
+            <select id="window" name="window" class="form-control">
                 {{range $key, $value := .}}
                 <option value="{{ $value }}">{{ $key }}</option>
                 {{end}}

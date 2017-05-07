@@ -41,14 +41,14 @@ func conf() {
 }
 
 //render page audio lessen
-func AudioListen(w http.ResponseWriter, r *http.Request) {
+func audioListen(w http.ResponseWriter, r *http.Request) {
 	render(w, "header.html")
 	tableAudio(w, r)
 	render(w, "footer.html")
 }
 
 // render page stat all file in all folder
-func ShowStat(w http.ResponseWriter, r *http.Request) {
+func showStat(w http.ResponseWriter, r *http.Request) {
 	render(w, "header.html")
 	tableMonitoring(w, r)
 	render(w, "footer.html")
@@ -91,40 +91,49 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string, string) {
 	r.ParseForm()
 
 	date := r.Form.Get("calendar")
-	okno := r.Form.Get("okno")
+	windowform := r.Form.Get("window")
 	timemodif := r.Form.Get("time")
 	t, err := template.ParseFiles("templates/range.html")
 	if err != nil {
 		fmt.Fprint(w, "<p>page not found 404</p>")
 		panic(err)
 	}
-	t.ExecuteTemplate(w, "okno", window)
+	t.ExecuteTemplate(w, "window", window)
 	t.ExecuteTemplate(w, "time", timeform)
-	return date, okno, timemodif
+	return date, windowform, timemodif
 }
 
 //render tableaudio
 func tableAudio(w http.ResponseWriter, r *http.Request) {
 
-	archive := viper.GetString("filetype.archive")
-	dir := viper.GetString("dir.AllFiles")
+	archive := viper.GetString("filetype.archivefile")
+	dir := viper.GetString("dir.works")
 	temp := viper.GetString("dir.temp")
-	date, okno, timemodif := htmlRang(w, r)
+	date, windowform, timemodif := htmlRang(w, r)
 	fmt.Printf("timemodif[%v]\n", timemodif)
-	oknoS := dir + okno
-	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >" + okno + " Время:" + timemodif + "</td></tr>")
 
-	listDirArchive := listfiles(oknoS, archive, date, timemodif) //2017-03-29
+	windowS := dir + windowform
+	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >" + windowform + "  Время: " + timemodif + "</td></tr>")
+
+	listDirArchive := listFiles(windowS, archive, date, timemodif) //2017-03-29
 
 	for i := range listDirArchive {
 		audiofile := viper.GetString("filetype.audiofile")
 		unzip(listDirArchive[i], temp+listDirArchive[i])
 
 		daysAgo := daysAgo(listDirArchive[i], day)
+
 		dhoursAgo := dateCreate(listDirArchive[i])
-		dhoursAgof := dhoursAgo.Format("08:10:00")
+		fmt.Printf("dhoursAgo[%v]\n", dhoursAgo)
+
+		dhoursAgof := dhoursAgo.Hour()
+		fmt.Printf("dhoursAgof[%v]\n", dhoursAgof)
+
 		dcreat := dateCreate(listDirArchive[i])
 		dcreatf := dcreat.Format("2006-01-02")
+
+		fmt.Printf("dcreatf[%v]\n", dcreatf)
+
 		dir := listDirArchive[i]
 		size := sizeFile(listDirArchive[i])
 
@@ -149,9 +158,10 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 
 	date := head(w, r)
-	archive := viper.GetString("filetype.archive")
-	dir := viper.GetString("dir.AllFiles")
-	listDirArchive := listfiles(dir, archive, date, "") //2017-03-29
+	archive := viper.GetString("filetype.archivefile")
+	dir := viper.GetString("dir.works")
+
+	listDirArchive := listFiles(dir, archive, date, "") //2017-03-29
 
 	for i := range listDirArchive {
 		smallfile := viper.GetInt64("size.file")
@@ -181,11 +191,62 @@ func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func listFiles(rootpath string, typefile string, data string, time string) []string {
+
+	list := make([]string, 0, 10)
+
+	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
+		modification := info.ModTime().UTC().Format("2006-01-02")
+		timetempleat := info.ModTime().UTC()
+		stringHour := fmt.Sprintf("%d", timetempleat.Hour())
+
+		//fmt.Printf("stringHour [%v]\n", stringHour)
+
+		if info.IsDir() {
+			return nil
+		}
+		if modification == data {
+			fmt.Printf("modification [%v]\n", modification)
+			if stringHour == time {
+				fmt.Printf("time [%v]\n", stringHour)
+				fmt.Printf("stringHour [%v]\n", stringHour)
+				if filepath.Ext(path) == typefile {
+					list = append(list, path)
+				}
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		fmt.Printf("walk error [%v]\n", err)
+	}
+	return list
+}
+
+//func return list files in dir appropriate type file
+func listFilesClear(rootpath string, typefile string) []string {
+
+	list := make([]string, 0, 10)
+	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			return nil
+		}
+		if filepath.Ext(path) == typefile {
+			list = append(list, path)
+		}
+		return nil
+	})
+	if err != nil {
+		fmt.Printf("walk error [%v]\n", err)
+	}
+	return list
+}
+
 //func http server
 func runHTTP() {
-	dirServer := viper.GetString("dir.Server")
-	http.HandleFunc("/", ShowStat)
-	http.HandleFunc("/audio", AudioListen)
+	dirServer := viper.GetString("dir.server")
+	http.HandleFunc("/", showStat)
+	http.HandleFunc("/audio", audioListen)
 	log.Println("http://localhost:8080 Listening...")
 
 	http.HandleFunc(dirServer, func(w http.ResponseWriter, r *http.Request) {
@@ -276,49 +337,7 @@ func sizeFileInt(path string) int64 {
 }
 
 //func return list files in dir appropriate type file and date create
-func listfiles(rootpath string, typefile string, data string, time string) []string {
 
-	list := make([]string, 0, 10)
-
-	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
-		modification := info.ModTime().UTC().Format("2006-01-02")
-		timetempleat := info.ModTime().UTC().Format("HH:MM:SS")
-		if info.IsDir() {
-			return nil
-		}
-		if modification == data {
-			if timetempleat >= time {
-				if filepath.Ext(path) == typefile {
-					list = append(list, path)
-				}
-			}
-		}
-		return nil
-	})
-	if err != nil {
-		fmt.Printf("walk error [%v]\n", err)
-	}
-	return list
-}
-
-//func return list files in dir appropriate type file
-func listFilesClear(rootpath string, typefile string) []string {
-
-	list := make([]string, 0, 10)
-	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
-		if info.IsDir() {
-			return nil
-		}
-		if filepath.Ext(path) == typefile {
-			list = append(list, path)
-		}
-		return nil
-	})
-	if err != nil {
-		fmt.Printf("walk error [%v]\n", err)
-	}
-	return list
-}
 
 //unzip file
 func unzip(archive, target string) error {
