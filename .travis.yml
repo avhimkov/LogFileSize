@@ -1,38 +1,27 @@
 language: go
 
 go:
-  - tip
+    - 1.8.x
+    - tip
+os:
+  - linux
+  - windows
 
-install:
-  - github.com/avhimkov/LogFileSize
-script:
-  # Testing scripts etc
-  - "./build.sh"
+notificaitons:
+  email:
+    recipients: your.email@host.com
+    on_success: change
+    on_failure: always
 
-#branches:
-#  only:
-#    - maste
-#env:
-#  # "gvm update" resets GOOS and GOARCH environment variable, workaround it by setting
-#  # BUILD_GOOS and BUILD_GOARCH and overriding GOARCH and GOOS in the build script
-#  global:
-#    - BUILD_GOARCH=amd64
-#  matrix:
-#    - BUILD_GOOS=linux
-#    - BUILD_GOOS=windows
-#script:
-#  - gvm cross $BUILD_GOOS $BUILD_GOARCH
-#  - GOARCH=$BUILD_GOARCH GOOS=$BUILD_GOOS go build
-#
-#  # only test on linux
-#  - if [ $BUILD_GOOS == "linux" ]; then GOARCH=$BUILD_GOARCH GOOS=$BUILD_GOOS go test -bench=.; fi
+gobuild_args: -ldflags "-X main.Version=${TRAVIS_TAG} -X main.buildTime=`date -u '+%Y-%m-%d_%I:%M:%S%p'` -X main.commitId=${TRAVIS_COMMIT}"
 
-deploy:
-  provider: releases
-  skip_cleanup: true # Important, otherwise the build output would be purged.
-  api_key:
-    secure: lFGBaF...SJ1lDPDICY=
-  file: bin/myawesomeapp
-  on:
-    repo: account/myawesomeproject
-    tags: true # The deployment happens only if the commit has a tag.
+env:
+  - GOOS=linux GOARCH=amd64
+  - GOOS=windows GOARCH=amd64
+
+after_success:
+  - ./build.sh
+
+matrix:
+  allow_failures:
+  - go: master

@@ -12,7 +12,6 @@ import (
 	"time"
 	"archive/zip"
 	"github.com/spf13/viper"
-	//"strings"
 	"strings"
 )
 
@@ -112,7 +111,6 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 	dir := viper.GetString("dir.works")
 	temp := viper.GetString("dir.temp")
 	date, windowform, timemodif := htmlRang(w, r)
-	fmt.Printf("timemodif[%v]\n", timemodif)
 
 	windowS := dir + windowform
 	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >" + windowform+"  Время: " + timemodif + "</td></tr>")
@@ -197,18 +195,14 @@ func listFiles(rootpath string, typefile string, data string, time string) []str
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
 		modification := info.ModTime().Format("2006-01-02")
 		timetempleat := info.ModTime().Format("3")
-		//fmt.Printf("timetempleat [%v]\n", timetempleat)
 
 		if info.IsDir() {
 			return nil
 		}
 		if modification == data {
-			fmt.Printf("timetempleat [%v]\n", timetempleat)
-			fmt.Printf("time [%v]\n", time)
 			if strings.EqualFold(timetempleat,  time) {
 				if filepath.Ext(path) == typefile {
 					list = append(list, path)
-					//fmt.Printf("list [%v]\n", list)
 				}
 			}
 		}
@@ -295,21 +289,6 @@ func daysAgo(path string, now time.Time) float64 {
 	days := float64(diff.Hours() / 24)
 	return days
 }
-
-//func hoursAgo(path string, now time.Time) float64 {
-//	dateCreate(path)
-//	file, err := os.Stat(path)
-//	if err != nil {
-//		fmt.Println(err)
-//	}
-//	modifiedtime := file.ModTime()
-//	if err != nil {
-//		fmt.Println(err)
-//	}
-//	diff := now.Sub(modifiedtime)
-//	days := float64(diff.Hours())
-//	return days
-//}
 
 //func return file size string format
 func sizeFile(path string) string {
