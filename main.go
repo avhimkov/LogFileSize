@@ -12,6 +12,8 @@ import (
 	"time"
 	"archive/zip"
 	"github.com/spf13/viper"
+	//"strings"
+	"strings"
 )
 
 var (
@@ -113,28 +115,25 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("timemodif[%v]\n", timemodif)
 
 	windowS := dir + windowform
-	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >" + windowform + "  Время: " + timemodif + "</td></tr>")
+	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >" + windowform+"  Время: " + timemodif + "</td></tr>")
 
 	listDirArchive := listFiles(windowS, archive, date, timemodif) //2017-03-29
+	//fmt.Printf("listDirArchive[%v]\n", listDirArchive)
 
 	for i := range listDirArchive {
 		audiofile := viper.GetString("filetype.audiofile")
-		unzip(listDirArchive[i], temp+listDirArchive[i])
+		unzip(listDirArchive[i], temp + listDirArchive[i])
 
-		daysAgo := daysAgo(listDirArchive[i], day)
-
-		dhoursAgo := dateCreate(listDirArchive[i])
-		fmt.Printf("dhoursAgo[%v]\n", dhoursAgo)
-
-		dhoursAgof := dhoursAgo.Hour()
-		fmt.Printf("dhoursAgof[%v]\n", dhoursAgof)
+		dir := listDirArchive[i]
 
 		dcreat := dateCreate(listDirArchive[i])
 		dcreatf := dcreat.Format("2006-01-02")
 
-		fmt.Printf("dcreatf[%v]\n", dcreatf)
+		daysAgo := daysAgo(listDirArchive[i], day)
 
-		dir := listDirArchive[i]
+		dhoursAgo := dateCreate(listDirArchive[i])
+		dhoursAgof := dhoursAgo.Hour()
+
 		size := sizeFile(listDirArchive[i])
 
 		listDirTemp := listFilesClear(temp, audiofile)
@@ -144,7 +143,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 			"<td align=\"left\" \">%s</td>" +
 			"<td align=\"center\" >%s</td>" +
 			"<td align=\"center\" >%.2f дней</td>" +
-			"<td align=\"center\" >%s часов</td>" +
+			"<td align=\"center\" >%d часов</td>" +
 			"<td align=\"center\">%s</td>" +
 			"<td align=\"center\">" +
 			"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>" +
@@ -172,19 +171,19 @@ func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 		size := sizeFile(listDirArchive[i])
 		sizeint := sizeFileInt(listDirArchive[i])
 		if sizeint > smallfile {
-			fmt.Fprintf(w, "<tr>"+
-				"<td align=\"left\" \">%s</td>"+
-				"<td align=\"center\" >%s</td>"+
-				"<td align=\"center\" >%.2f дней</td>"+
-				"<td align=\"center\">%s</td>"+
+			fmt.Fprintf(w, "<tr>" +
+				"<td align=\"left\" \">%s</td>" +
+				"<td align=\"center\" >%s</td>" +
+				"<td align=\"center\" >%.2f дней</td>" +
+				"<td align=\"center\">%s</td>" +
 				"</tr>",
 				dir, dcreatf, daysAgo, size)
 		} else {
-			fmt.Fprintf(w, "<tr>"+
-				"<td bgcolor=\"#ffcc00\" align=\"left\" \">%s</td>"+
-				"<td bgcolor=\"#ffcc00\" align=\"center\" >%s</td>"+
-				"<td bgcolor=\"#ffcc00\" align=\"center\" >%.2f дней</td>"+
-				"<td bgcolor=\"#ffcc00\" align=\"center\">%s</td>"+
+			fmt.Fprintf(w, "<tr>" +
+				"<td bgcolor=\"#ffcc00\" align=\"left\" \">%s</td>" +
+				"<td bgcolor=\"#ffcc00\" align=\"center\" >%s</td>" +
+				"<td bgcolor=\"#ffcc00\" align=\"center\" >%.2f дней</td>" +
+				"<td bgcolor=\"#ffcc00\" align=\"center\">%s</td>" +
 				"</tr>",
 				dir, dcreatf, daysAgo, size)
 		}
@@ -196,22 +195,20 @@ func listFiles(rootpath string, typefile string, data string, time string) []str
 	list := make([]string, 0, 10)
 
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
-		modification := info.ModTime().UTC().Format("2006-01-02")
-		timetempleat := info.ModTime().UTC()
-		stringHour := fmt.Sprintf("%d", timetempleat.Hour())
-
-		//fmt.Printf("stringHour [%v]\n", stringHour)
+		modification := info.ModTime().Format("2006-01-02")
+		timetempleat := info.ModTime().Format("3")
+		//fmt.Printf("timetempleat [%v]\n", timetempleat)
 
 		if info.IsDir() {
 			return nil
 		}
 		if modification == data {
-			fmt.Printf("modification [%v]\n", modification)
-			if stringHour == time {
-				fmt.Printf("time [%v]\n", stringHour)
-				fmt.Printf("stringHour [%v]\n", stringHour)
+			fmt.Printf("timetempleat [%v]\n", timetempleat)
+			fmt.Printf("time [%v]\n", time)
+			if strings.EqualFold(timetempleat,  time) {
 				if filepath.Ext(path) == typefile {
 					list = append(list, path)
+					//fmt.Printf("list [%v]\n", list)
 				}
 			}
 		}
@@ -337,7 +334,6 @@ func sizeFileInt(path string) int64 {
 }
 
 //func return list files in dir appropriate type file and date create
-
 
 //unzip file
 func unzip(archive, target string) error {

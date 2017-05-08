@@ -3,7 +3,7 @@
     <td>Имя файла</td>
     <td>Дата</td>
     <td>Прошло дней</td>
-    <td>Прошло часов</td>
+    <td>Время</td>
     <td>Размер</td>
     <td>Аудио</td>
 </tr>
@@ -23,8 +23,8 @@
             {{define "time"}}
             <h4>Выбирите время</h4>
             <select id="time" name="time" class="form-control">
-                {{range $keytime, $valuetime := .}}
-                <option value="{{ $valuetime }}">{{ $keytime }}</option>
+                {{range $key, $value := .}}
+                <option value="{{ $value }}">{{ $key }}</option>
                 {{end}}
             </select>
             <p><p><input type="submit" class="btn btn-primary" value="Показать"></p></p>
