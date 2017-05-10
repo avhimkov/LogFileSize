@@ -158,7 +158,7 @@ func TableMonitoring(w http.ResponseWriter, r *http.Request) {
 	archive := viper.GetString("filetype.archivefile")
 	dir := viper.GetString("dir.works")
 
-	listDirArchive := ListFiles(dir, archive, date, "") //2017-03-29
+	listDirArchive := ListFilesDate(dir, archive, date) //2017-03-29
 
 	for i := range listDirArchive {
 		smallfile := viper.GetInt64("size.file")
@@ -205,6 +205,29 @@ func ListFiles(rootpath string, typefile string, data string, time string) []str
 					list = append(list, path)
 				}
 			}
+		}
+		return nil
+	})
+	if err != nil {
+		fmt.Printf("walk error [%v]\n", err)
+	}
+	return list
+}
+
+func ListFilesDate(rootpath string, typefile string, data string) []string {
+
+	list := make([]string, 0, 10)
+
+	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
+		modification := info.ModTime().Format("2006-01-02")
+
+		if info.IsDir() {
+			return nil
+		}
+		if modification == data {
+				if filepath.Ext(path) == typefile {
+					list = append(list, path)
+				}
 		}
 		return nil
 	})

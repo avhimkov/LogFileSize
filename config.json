@@ -25,7 +25,7 @@
   "dir": {
     "temp":   "file/temp/",
     "server": "/file/",
-    "works":  "/blabla/"
+    "works":  "/mnt/mfc-rec/"
   },
   "size":{
     "file": 1000
