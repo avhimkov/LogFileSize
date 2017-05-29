@@ -121,40 +121,71 @@ func TableAudio(w http.ResponseWriter, r *http.Request) {
 		for j := range listDirArchive{
 			UnZip(listDirArchive[j], temp + listDirArchive[j])
 		}
+		for i := range listDirArchive {
+			audiofile := viper.GetString("filetype.audiofile")
+
+			dir := listDirArchive[i]
+
+			dcreat := DateCreate(listDirArchive[i])
+			dcreatf := dcreat.Format("2006-01-02")
+
+			daysAgo := DaysAgo(listDirArchive[i], day)
+
+			dhoursAgo := DateCreate(listDirArchive[i])
+			dhoursAgof := dhoursAgo.Hour()
+
+			size := SizeFile(listDirArchive[i])
+
+			listDirTemp := ListFilesClear(temp, audiofile)
+			dirtemp := listDirTemp[i]
+
+			fmt.Fprintf(w, "<tr>" +
+				"<td align=\"left\" \">%s</td>" +
+				"<td align=\"center\" >%s</td>" +
+				"<td align=\"center\" >%.2f дней</td>" +
+				"<td align=\"center\" >%d часов</td>" +
+				"<td align=\"center\">%s</td>" +
+				"<td align=\"center\">" +
+				"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>" +
+				"</td></tr>",
+				//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
+				dir, dcreatf, daysAgo, dhoursAgof, size, dirtemp)
+		}
+	} else {
+		for i := range listDirArchive {
+			audiofile := viper.GetString("filetype.audiofile")
+
+			dir := listDirArchive[i]
+
+			dcreat := DateCreate(listDirArchive[i])
+			dcreatf := dcreat.Format("2006-01-02")
+
+			daysAgo := DaysAgo(listDirArchive[i], day)
+
+			dhoursAgo := DateCreate(listDirArchive[i])
+			dhoursAgof := dhoursAgo.Hour()
+
+			size := SizeFile(listDirArchive[i])
+
+			listDirTemp := ListFilesClear(windowS, audiofile)
+			dirtemp := listDirTemp[i]
+
+			fmt.Fprintf(w, "<tr>" +
+				"<td align=\"left\" \">%s</td>" +
+				"<td align=\"center\" >%s</td>" +
+				"<td align=\"center\" >%.2f дней</td>" +
+				"<td align=\"center\" >%d часов</td>" +
+				"<td align=\"center\">%s</td>" +
+				"<td align=\"center\">" +
+				"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>" +
+				"</td></tr>",
+				//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
+				dir, dcreatf, daysAgo, dhoursAgof, size, dirtemp)
+		}
+
 	}
 
-	for i := range listDirArchive {
-		audiofile := viper.GetString("filetype.audiofile")
 
-		dir := listDirArchive[i]
-
-		dcreat := DateCreate(listDirArchive[i])
-		dcreatf := dcreat.Format("2006-01-02")
-
-		daysAgo := DaysAgo(listDirArchive[i], day)
-
-		dhoursAgo := DateCreate(listDirArchive[i])
-		dhoursAgof := dhoursAgo.Hour()
-
-		size := SizeFile(listDirArchive[i])
-
-		listDirTemp := ListFilesClear(temp, audiofile)
-		dirtemp := listDirTemp[i]
-
-		fmt.Fprintf(w, "<tr>" +
-			"<td align=\"left\" \">%s</td>" +
-			"<td align=\"center\" >%s</td>" +
-			"<td align=\"center\" >%.2f дней</td>" +
-			"<td align=\"center\" >%d часов</td>" +
-			"<td align=\"center\">%s</td>" +
-			"<td align=\"center\">" +
-			"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>" +
-			"</td></tr>",
-			//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
-			dir, dcreatf, daysAgo, dhoursAgof, size, dirtemp)
-	}
-
-	//fmt.Printf("listDirArchive [%v]\n", listDirArchive)
 }
 
 //render table montin
@@ -265,6 +296,7 @@ func ListFilesClear(rootpath string, typefile string) []string {
 //func http server
 func RunHTTP() {
 	dirServer := viper.GetString("dir.server")
+	//dirWorks := viper.GetString("dir.works")
 	http.HandleFunc("/", ShowStat)
 	http.HandleFunc("/audio", AudioListen)
 	log.Println("http://localhost:8080 Listening...")
@@ -272,6 +304,10 @@ func RunHTTP() {
 	http.HandleFunc(dirServer, func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
 	})
+
+	//http.HandleFunc(dirWorks, func(w http.ResponseWriter, r *http.Request) {
+	//	http.ServeFile(w, r, r.URL.Path[1:])
+	//})
 
 	http.HandleFunc("/bootstrap/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])

@@ -7,12 +7,12 @@
     <td>Размер</td>
     <td>Аудио</td>
 </tr>
-<form action="" method="get" id="bootstrapSelectForm" class="form-inline">
+<form action="" method="get" id="bootstrapSelectForm" class="form-horizontal">
     <div class="form-group">
         <label class="col-xs-5 control-label"></label>
         <div class="col-xs-2 selectContainer">
             <h4>Выбирите дату</h4>
-            <input type="date" name="calendar" class="form-control" />
+            <input type="date" name="calendar" class="form-control"/>
             <h4>Выбирите окно</h4>
             <select id="window" name="window" class="form-control">
                 {{range $key, $value := .}}
