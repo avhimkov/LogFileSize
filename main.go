@@ -116,11 +116,15 @@ func TableAudio(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >" + windowform+"  Время: " + timemodif + "</td></tr>")
 
 	listDirArchive := ListFiles(windowS, archive, date, timemodif) //2017-03-29
-	//fmt.Printf("listDirArchive[%v]\n", listDirArchive)
+
+	if archive == ".zip" {
+		for j := range listDirArchive{
+			UnZip(listDirArchive[j], temp + listDirArchive[j])
+		}
+	}
 
 	for i := range listDirArchive {
 		audiofile := viper.GetString("filetype.audiofile")
-		UnZip(listDirArchive[i], temp + listDirArchive[i])
 
 		dir := listDirArchive[i]
 
@@ -149,9 +153,11 @@ func TableAudio(w http.ResponseWriter, r *http.Request) {
 			//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
 			dir, dcreatf, daysAgo, dhoursAgof, size, dirtemp)
 	}
+
+	//fmt.Printf("listDirArchive [%v]\n", listDirArchive)
 }
 
-//render table motin
+//render table montin
 func TableMonitoring(w http.ResponseWriter, r *http.Request) {
 
 	date := Head(w, r)

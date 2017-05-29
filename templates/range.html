@@ -7,12 +7,12 @@
     <td>Размер</td>
     <td>Аудио</td>
 </tr>
-<form action="" method="get" id="bootstrapSelectForm" class="form-horizontal">
+<form action="" method="get" id="bootstrapSelectForm" class="form-inline">
     <div class="form-group">
         <label class="col-xs-5 control-label"></label>
         <div class="col-xs-2 selectContainer">
             <h4>Выбирите дату</h4>
-            <p><input type="date" name="calendar" class="form-control" /></p>
+            <input type="date" name="calendar" class="form-control" />
             <h4>Выбирите окно</h4>
             <select id="window" name="window" class="form-control">
                 {{range $key, $value := .}}
@@ -28,6 +28,7 @@
                 {{end}}
             </select>
             <p><p><input type="submit" class="btn btn-primary" value="Показать"></p></p>
-        </div></div>
+        </div>
+    </div>
 </form>
 {{end}}
