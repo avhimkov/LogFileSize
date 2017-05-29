@@ -13,6 +13,7 @@ import (
 	"archive/zip"
 	"github.com/spf13/viper"
 	"strings"
+	"io/ioutil"
 )
 
 var (
@@ -107,7 +108,7 @@ func HtmlRang(w http.ResponseWriter, r *http.Request) (string, string, string) {
 //render tableaudio
 func TableAudio(w http.ResponseWriter, r *http.Request) {
 
-	archive := viper.GetString("filetype.archivefile")
+	typefiles := viper.GetString("filetype.archivefile")
 	dir := viper.GetString("dir.works")
 	temp := viper.GetString("dir.temp")
 	date, windowform, timemodif := HtmlRang(w, r)
@@ -115,15 +116,15 @@ func TableAudio(w http.ResponseWriter, r *http.Request) {
 	windowS := dir + windowform
 	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >" + windowform+"  Время: " + timemodif + "</td></tr>")
 
-	listDirArchive := ListFiles(windowS, archive, date, timemodif) //2017-03-29
+	listDirArchive := ListFiles(windowS, typefiles, date, timemodif) //2017-03-29
 
-	if archive == ".zip" {
+	if typefiles == ".zip" {
 		for j := range listDirArchive{
 			UnZip(listDirArchive[j], temp + listDirArchive[j])
 		}
+
 		for i := range listDirArchive {
 			audiofile := viper.GetString("filetype.audiofile")
-
 			dir := listDirArchive[i]
 
 			dcreat := DateCreate(listDirArchive[i])
@@ -152,6 +153,9 @@ func TableAudio(w http.ResponseWriter, r *http.Request) {
 				dir, dcreatf, daysAgo, dhoursAgof, size, dirtemp)
 		}
 	} else {
+		for j := range listDirArchive{
+			CopyFile(listDirArchive[j], temp + listDirArchive[j])
+		}
 		for i := range listDirArchive {
 			audiofile := viper.GetString("filetype.audiofile")
 
@@ -167,7 +171,7 @@ func TableAudio(w http.ResponseWriter, r *http.Request) {
 
 			size := SizeFile(listDirArchive[i])
 
-			listDirTemp := ListFilesClear(windowS, audiofile)
+			listDirTemp := ListFilesClear(temp, audiofile)
 			dirtemp := listDirTemp[i]
 
 			fmt.Fprintf(w, "<tr>" +
@@ -377,8 +381,20 @@ func SizeFileInt(path string) int64 {
 	return sizeStr
 }
 
+func checkErr(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 //func return list files in dir appropriate type file and date create
-
+func CopyFile(src string, dst string) {
+	// Read all content of src to data
+	data, err := ioutil.ReadFile(src)
+	checkErr(err)
+	// Write data to dst
+	err = ioutil.WriteFile(dst, data, 0644)
+	checkErr(err)
+}
 //UnZip file
 func UnZip(archive, target string) error {
 	reader, err := zip.OpenReader(archive)
