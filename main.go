@@ -22,16 +22,16 @@ var (
 
 func main() {
 	//load config
-	Conf()
+	conf()
 	//clear temp folder
 	var temp = viper.GetString("dir.temp")
 	os.RemoveAll(temp)
 	//run http server
-	RunHTTP()
+	runHTTP()
 }
 
 //config JSON file init
-func Conf() {
+func conf() {
 	viper.SetConfigType("json")
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
@@ -43,21 +43,21 @@ func Conf() {
 }
 
 //render page audio lessen
-func AudioListen(w http.ResponseWriter, r *http.Request) {
-	Render(w, "header.html")
-	TableAudio(w, r)
-	Render(w, "footer.html")
+func audioListen(w http.ResponseWriter, r *http.Request) {
+	render(w, "header.html")
+	tableAudio(w, r)
+	render(w, "footer.html")
 }
 
 // render page stat all file in all folder
 func ShowStat(w http.ResponseWriter, r *http.Request) {
-	Render(w, "header.html")
-	TableMonitoring(w, r)
-	Render(w, "footer.html")
+	render(w, "header.html")
+	tableMonitoring(w, r)
+	render(w, "footer.html")
 }
 
 //func render template
-func Render(w http.ResponseWriter, tmpl string) {
+func render(w http.ResponseWriter, tmpl string) {
 	tmpl = fmt.Sprintf("templates/%s", tmpl)
 	t, err := template.ParseFiles(tmpl)
 	if err != nil {
@@ -70,7 +70,7 @@ func Render(w http.ResponseWriter, tmpl string) {
 }
 
 //render table, calendar and button for table monit
-func Head(w http.ResponseWriter, r *http.Request) string {
+func head(w http.ResponseWriter, r *http.Request) string {
 	r.FormValue("name")
 	r.ParseForm()
 	date := r.Form.Get("calendar")
@@ -84,7 +84,7 @@ func Head(w http.ResponseWriter, r *http.Request) string {
 }
 
 //render table, calendar and button for table audio
-func HtmlRang(w http.ResponseWriter, r *http.Request) (string, string, string) {
+func htmlRang(w http.ResponseWriter, r *http.Request) (string, string, string) {
 
 	window := viper.GetStringMap("windows")
 	timeform := viper.GetStringMap("time")
@@ -106,17 +106,17 @@ func HtmlRang(w http.ResponseWriter, r *http.Request) (string, string, string) {
 }
 
 //render tableaudio
-func TableAudio(w http.ResponseWriter, r *http.Request) {
+func tableAudio(w http.ResponseWriter, r *http.Request) {
 
 	typefiles := viper.GetString("filetype.archivefile")
 	dir := viper.GetString("dir.works")
 	temp := viper.GetString("dir.temp")
-	date, windowform, timemodif := HtmlRang(w, r)
+	date, windowform, timemodif := htmlRang(w, r)
 
 	windowS := dir + windowform
 	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >" + windowform+"  Время: " + timemodif + "</td></tr>")
 
-	listDirArchive := ListFiles(windowS, typefiles, date, timemodif) //2017-03-29
+	listDirArchive := listFiles(windowS, typefiles, date, timemodif) //2017-03-29
 
 	if typefiles == ".zip" {
 		for j := range listDirArchive{
@@ -127,17 +127,17 @@ func TableAudio(w http.ResponseWriter, r *http.Request) {
 			audiofile := viper.GetString("filetype.audiofile")
 			dir := listDirArchive[i]
 
-			dcreat := DateCreate(listDirArchive[i])
+			dcreat := dateCreate(listDirArchive[i])
 			dcreatf := dcreat.Format("2006-01-02")
 
-			daysAgo := DaysAgo(listDirArchive[i], day)
+			daysAgo := daysAgo(listDirArchive[i], day)
 
-			dhoursAgo := DateCreate(listDirArchive[i])
+			dhoursAgo := dateCreate(listDirArchive[i])
 			dhoursAgof := dhoursAgo.Hour()
 
-			size := SizeFile(listDirArchive[i])
+			size := sizeFile(listDirArchive[i])
 
-			listDirTemp := ListFilesClear(temp, audiofile)
+			listDirTemp := listFilesClear(temp, audiofile)
 			dirtemp := listDirTemp[i]
 
 			fmt.Fprintf(w, "<tr>" +
@@ -154,24 +154,24 @@ func TableAudio(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		for j := range listDirArchive{
-			CopyFile(listDirArchive[j], temp + listDirArchive[j])
+			copyFile(listDirArchive[j], temp + listDirArchive[j])
 		}
 		for i := range listDirArchive {
 			audiofile := viper.GetString("filetype.audiofile")
 
 			dir := listDirArchive[i]
 
-			dcreat := DateCreate(listDirArchive[i])
+			dcreat := dateCreate(listDirArchive[i])
 			dcreatf := dcreat.Format("2006-01-02")
 
-			daysAgo := DaysAgo(listDirArchive[i], day)
+			daysAgo := daysAgo(listDirArchive[i], day)
 
-			dhoursAgo := DateCreate(listDirArchive[i])
+			dhoursAgo := dateCreate(listDirArchive[i])
 			dhoursAgof := dhoursAgo.Hour()
 
-			size := SizeFile(listDirArchive[i])
+			size := sizeFile(listDirArchive[i])
 
-			listDirTemp := ListFilesClear(temp, audiofile)
+			listDirTemp := listFilesClear(temp, audiofile)
 			dirtemp := listDirTemp[i]
 
 			fmt.Fprintf(w, "<tr>" +
@@ -193,22 +193,22 @@ func TableAudio(w http.ResponseWriter, r *http.Request) {
 }
 
 //render table montin
-func TableMonitoring(w http.ResponseWriter, r *http.Request) {
+func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 
-	date := Head(w, r)
+	date := head(w, r)
 	archive := viper.GetString("filetype.archivefile")
 	dir := viper.GetString("dir.works")
 
-	listDirArchive := ListFilesDate(dir, archive, date) //2017-03-29
+	listDirArchive := listFilesDate(dir, archive, date) //2017-03-29
 
 	for i := range listDirArchive {
 		smallfile := viper.GetInt64("size.file")
-		daysAgo := DaysAgo(listDirArchive[i], day)
-		dcreat := DateCreate(listDirArchive[i])
+		daysAgo := daysAgo(listDirArchive[i], day)
+		dcreat := dateCreate(listDirArchive[i])
 		dcreatf := dcreat.Format("2006-01-02")
 		dir := listDirArchive[i]
-		size := SizeFile(listDirArchive[i])
-		sizeint := SizeFileInt(listDirArchive[i])
+		size := sizeFile(listDirArchive[i])
+		sizeint := sizeFileInt(listDirArchive[i])
 		if sizeint > smallfile {
 			fmt.Fprintf(w, "<tr>" +
 				"<td align=\"left\" \">%s</td>" +
@@ -229,7 +229,7 @@ func TableMonitoring(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ListFiles(rootpath string, typefile string, data string, time string) []string {
+func listFiles(rootpath string, typefile string, data string, time string) []string {
 
 	list := make([]string, 0, 10)
 
@@ -255,7 +255,7 @@ func ListFiles(rootpath string, typefile string, data string, time string) []str
 	return list
 }
 
-func ListFilesDate(rootpath string, typefile string, data string) []string {
+func listFilesDate(rootpath string, typefile string, data string) []string {
 
 	list := make([]string, 0, 10)
 
@@ -279,7 +279,7 @@ func ListFilesDate(rootpath string, typefile string, data string) []string {
 }
 
 //func return list files in dir appropriate type file
-func ListFilesClear(rootpath string, typefile string) []string {
+func listFilesClear(rootpath string, typefile string) []string {
 
 	list := make([]string, 0, 10)
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
@@ -298,11 +298,11 @@ func ListFilesClear(rootpath string, typefile string) []string {
 }
 
 //func http server
-func RunHTTP() {
+func runHTTP() {
 	dirServer := viper.GetString("dir.server")
 	//dirWorks := viper.GetString("dir.works")
 	http.HandleFunc("/", ShowStat)
-	http.HandleFunc("/audio", AudioListen)
+	http.HandleFunc("/audio", audioListen)
 	log.Println("http://localhost:8080 Listening...")
 
 	http.HandleFunc(dirServer, func(w http.ResponseWriter, r *http.Request) {
@@ -320,7 +320,7 @@ func RunHTTP() {
 }
 
 //convert size file from int64 to string and convert in humans format
-func ConvertSize(size int64) (string, error) {
+func convertSize(size int64) (string, error) {
 	if size == 0 {
 		return "0B", nil
 	}
@@ -331,7 +331,7 @@ func ConvertSize(size int64) (string, error) {
 }
 
 //func return time date create files
-func DateCreate(path string) time.Time {
+func dateCreate(path string) time.Time {
 	file, err := os.Stat(path)
 	if err != nil {
 		fmt.Println(err)
@@ -344,8 +344,8 @@ func DateCreate(path string) time.Time {
 }
 
 //func calculate dais ago
-func DaysAgo(path string, now time.Time) float64 {
-	DateCreate(path)
+func daysAgo(path string, now time.Time) float64 {
+	dateCreate(path)
 	file, err := os.Stat(path)
 	if err != nil {
 		fmt.Println(err)
@@ -360,10 +360,10 @@ func DaysAgo(path string, now time.Time) float64 {
 }
 
 //func return file size string format
-func SizeFile(path string) string {
+func sizeFile(path string) string {
 
 	stat, err := os.Stat(path)
-	sizeStr, err := ConvertSize(stat.Size())
+	sizeStr, err := convertSize(stat.Size())
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -371,7 +371,7 @@ func SizeFile(path string) string {
 }
 
 //func return file size int64 format
-func SizeFileInt(path string) int64 {
+func sizeFileInt(path string) int64 {
 
 	stat, err := os.Stat(path)
 	sizeStr := stat.Size()
@@ -387,7 +387,7 @@ func checkErr(err error) {
 	}
 }
 //func return list files in dir appropriate type file and date create
-func CopyFile(src string, dst string) {
+func copyFile(src string, dst string) {
 	// Read all content of src to data
 	data, err := ioutil.ReadFile(src)
 	checkErr(err)
