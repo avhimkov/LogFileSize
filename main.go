@@ -370,6 +370,7 @@ func sizeFile(path string) string {
 	return sizeStr
 }
 
+
 //func return file size int64 format
 func sizeFileInt(path string) int64 {
 
