@@ -107,7 +107,6 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string, string) {
 
 //render tableaudio
 func tableAudio(w http.ResponseWriter, r *http.Request) {
-
 	typefiles := viper.GetString("filetype.archivefile")
 	dir := viper.GetString("dir.works")
 	temp := viper.GetString("dir.temp")
@@ -186,15 +185,11 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 				//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
 				dir, dcreatf, daysAgo, dhoursAgof, size, dirtemp)
 		}
-
 	}
-
-
 }
 
 //render table montin
 func tableMonitoring(w http.ResponseWriter, r *http.Request) {
-
 	date := head(w, r)
 	archive := viper.GetString("filetype.archivefile")
 	dir := viper.GetString("dir.works")
@@ -280,7 +275,6 @@ func listFilesDate(rootpath string, typefile string, data string) []string {
 
 //func return list files in dir appropriate type file
 func listFilesClear(rootpath string, typefile string) []string {
-
 	list := make([]string, 0, 10)
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
@@ -361,7 +355,6 @@ func daysAgo(path string, now time.Time) float64 {
 
 //func return file size string format
 func sizeFile(path string) string {
-
 	stat, err := os.Stat(path)
 	sizeStr, err := convertSize(stat.Size())
 	if err != nil {
@@ -370,10 +363,8 @@ func sizeFile(path string) string {
 	return sizeStr
 }
 
-
 //func return file size int64 format
 func sizeFileInt(path string) int64 {
-
 	stat, err := os.Stat(path)
 	sizeStr := stat.Size()
 	if err != nil {
@@ -387,6 +378,7 @@ func checkErr(err error) {
 		log.Fatal(err)
 	}
 }
+
 //func return list files in dir appropriate type file and date create
 func copyFile(src string, dst string) {
 	// Read all content of src to data
@@ -396,6 +388,7 @@ func copyFile(src string, dst string) {
 	err = ioutil.WriteFile(dst, data, 0644)
 	checkErr(err)
 }
+
 //UnZip file
 func UnZip(archive, target string) error {
 	reader, err := zip.OpenReader(archive)
