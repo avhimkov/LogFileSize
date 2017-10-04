@@ -339,19 +339,25 @@ func dateCreate(path string) time.Time {
 
 //func calculate dais ago
 func daysAgo(path string, now time.Time) float64 {
-	dateCreate(path)
-	file, err := os.Stat(path)
-	if err != nil {
-		fmt.Println(err)
-	}
-	modifiedtime := file.ModTime()
-	if err != nil {
-		fmt.Println(err)
-	}
-	diff := now.Sub(modifiedtime)
+	diff := now.Sub(dateCreate(path))
 	days := float64(diff.Hours() / 24)
 	return days
 }
+
+//func daysAgo(path string, now time.Time) float64 {
+//	dateCreate(path)
+//	file, err := os.Stat(path)
+//	if err != nil {
+//		fmt.Println(err)
+//	}
+//	modifiedtime := file.ModTime()
+//	if err != nil {
+//		fmt.Println(err)
+//	}
+//	diff := now.Sub(modifiedtime)
+//	days := float64(diff.Hours() / 24)
+//	return days
+//}
 
 //func return file size string format
 func sizeFile(path string) string {
