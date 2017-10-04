@@ -327,13 +327,10 @@ func convertSize(size int64) (string, error) {
 //func return time date create files
 func dateCreate(path string) time.Time {
 	file, err := os.Stat(path)
-	if err != nil {
-		fmt.Println(err)
-	}
+	checkErr(err)
+
 	modifiedtime := file.ModTime()
-	if err != nil {
-		fmt.Println(err)
-	}
+	checkErr(err)
 	return modifiedtime
 }
 
@@ -363,9 +360,7 @@ func daysAgo(path string, now time.Time) float64 {
 func sizeFile(path string) string {
 	stat, err := os.Stat(path)
 	sizeStr, err := convertSize(stat.Size())
-	if err != nil {
-		fmt.Println(err)
-	}
+	checkErr(err)
 	return sizeStr
 }
 
@@ -373,9 +368,7 @@ func sizeFile(path string) string {
 func sizeFileInt(path string) int64 {
 	stat, err := os.Stat(path)
 	sizeStr := stat.Size()
-	if err != nil {
-		fmt.Println(err)
-	}
+	checkErr(err)
 	return sizeStr
 }
 
@@ -398,9 +391,7 @@ func copyFile(src string, dst string) {
 //UnZip file
 func UnZip(archive, target string) error {
 	reader, err := zip.OpenReader(archive)
-	if err != nil {
-		return err
-	}
+	checkErr(err)
 	if err := os.MkdirAll(target, 0755); err != nil {
 		return err
 	}
@@ -411,15 +402,11 @@ func UnZip(archive, target string) error {
 			continue
 		}
 		fileReader, err := file.Open()
-		if err != nil {
-			return err
-		}
+		checkErr(err)
 		defer fileReader.Close()
 
 		targetFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
-		if err != nil {
-			return err
-		}
+		checkErr(err)
 		defer targetFile.Close()
 
 		if _, err := io.Copy(targetFile, fileReader); err != nil {
