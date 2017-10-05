@@ -25,7 +25,7 @@
   "dir": {
     "temp":   "file/temp/",
     "server": "/file/",
-    "works":  "D:/blabla/"
+    "works":  "/blabla/"
   },
   "size":{
     "file": 1000

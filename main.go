@@ -108,6 +108,9 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string, string) {
 //render tableaudio
 func tableAudio(w http.ResponseWriter, r *http.Request) {
 	typefiles := viper.GetString("filetype.archivefile")
+
+	//exists(viper.GetString("dir.works"))
+
 	dir := viper.GetString("dir.works")
 	temp := viper.GetString("dir.temp")
 	date, windowform, timemodif := htmlRang(w, r)
@@ -376,6 +379,13 @@ func checkErr(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil { return true, nil }
+	if os.IsNotExist(err) { return false, nil }
+	return true, err
 }
 
 //func return list files in dir appropriate type file and date create
