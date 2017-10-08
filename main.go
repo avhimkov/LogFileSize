@@ -16,9 +16,9 @@ import (
 	"io/ioutil"
 )
 
-var (
-	day = time.Now()
-)
+//var (
+//	day = time.Now()
+//)
 
 func main() {
 	//load config
@@ -129,12 +129,13 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 			audiofile := viper.GetString("filetype.audiofile")
 			dir := listDirArchive[i]
 
-			dcreat := dateCreate(listDirArchive[i])
+			dcreat, _ := dateCreate(listDirArchive[i])
 			dcreatf := dcreat.Format("2006-01-02")
 
-			daysAgo := daysAgo(listDirArchive[i], day)
+			_, daysAgo := dateCreate(listDirArchive[i])
+			//daysAgo := daysAgo(listDirArchive[i], day)
 
-			dhoursAgo := dateCreate(listDirArchive[i])
+			dhoursAgo, _ := dateCreate(listDirArchive[i])
 			dhoursAgof := dhoursAgo.Hour()
 
 			size, _ := sizeFile(listDirArchive[i])
@@ -163,12 +164,13 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 
 			dir := listDirArchive[i]
 
-			dcreat := dateCreate(listDirArchive[i])
+			dcreat, _ := dateCreate(listDirArchive[i])
 			dcreatf := dcreat.Format("2006-01-02")
 
-			daysAgo := daysAgo(listDirArchive[i], day)
+			_, daysAgo := dateCreate(listDirArchive[i])
+			//daysAgo := daysAgo(listDirArchive[i], day)
 
-			dhoursAgo := dateCreate(listDirArchive[i])
+			dhoursAgo, _ := dateCreate(listDirArchive[i])
 			dhoursAgof := dhoursAgo.Hour()
 
 			size, _ := sizeFile(listDirArchive[i])
@@ -201,8 +203,9 @@ func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 
 	for i := range listDirArchive {
 		smallfile := viper.GetInt64("size.file")
-		daysAgo := daysAgo(listDirArchive[i], day)
-		dcreat := dateCreate(listDirArchive[i])
+		_, daysAgo := dateCreate(listDirArchive[i])
+		//daysAgo := daysAgo(listDirArchive[i], day)
+		dcreat, _ := dateCreate(listDirArchive[i])
 		dcreatf := dcreat.Format("2006-01-02")
 		dir := listDirArchive[i]
 		size, _ := sizeFile(listDirArchive[i])
@@ -328,21 +331,27 @@ func convertSize(size int64) (string, error) {
 }
 
 //func return time date create files
-func dateCreate(path string) time.Time {
+func dateCreate(path string) (time.Time, float64) {
+	now := time.Now()
+
 	file, err := os.Stat(path)
 	checkErr(err)
 
 	modifiedtime := file.ModTime()
 	checkErr(err)
-	return modifiedtime
+
+	diff := now.Sub(modifiedtime)
+	days := float64(diff.Hours() / 24)
+
+	return modifiedtime, days
 }
 
-//func calculate dais ago
-func daysAgo(path string, now time.Time) float64 {
-	diff := now.Sub(dateCreate(path))
-	days := float64(diff.Hours() / 24)
-	return days
-}
+//func calculate days ago
+//func daysAgo(path string, now time.Time) float64 {
+//	diff := now.Sub(dateCreate(path))
+//	days := float64(diff.Hours() / 24)
+//	return days
+//}
 
 //func daysAgo(path string, now time.Time) float64 {
 //	dateCreate(path)
@@ -362,12 +371,9 @@ func daysAgo(path string, now time.Time) float64 {
 //func return file size string and int64 format
 func sizeFile(path string) (string, int64) {
 	stat, err := os.Stat(path)
-
 	sizeStr, err := convertSize(stat.Size())
 	sizeInt64 := stat.Size()
-
 	checkErr(err)
-
 	return sizeStr, sizeInt64
 }
 
@@ -385,12 +391,12 @@ func checkErr(err error) {
 	}
 }
 
-func exists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil { return true, nil }
-	if os.IsNotExist(err) { return false, nil }
-	return true, err
-}
+//func exists(path string) (bool, error) {
+//	_, err := os.Stat(path)
+//	if err == nil { return true, nil }
+//	if os.IsNotExist(err) { return false, nil }
+//	return true, err
+//}
 
 //func return list files in dir appropriate type file and date create
 func copyFile(src string, dst string) {
