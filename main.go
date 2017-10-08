@@ -137,7 +137,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 			dhoursAgo := dateCreate(listDirArchive[i])
 			dhoursAgof := dhoursAgo.Hour()
 
-			size := sizeFile(listDirArchive[i])
+			size, _ := sizeFile(listDirArchive[i])
 
 			listDirTemp := listFilesClear(temp, audiofile)
 			dirtemp := listDirTemp[i]
@@ -171,7 +171,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 			dhoursAgo := dateCreate(listDirArchive[i])
 			dhoursAgof := dhoursAgo.Hour()
 
-			size := sizeFile(listDirArchive[i])
+			size, _ := sizeFile(listDirArchive[i])
 
 			listDirTemp := listFilesClear(temp, audiofile)
 			dirtemp := listDirTemp[i]
@@ -205,8 +205,8 @@ func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 		dcreat := dateCreate(listDirArchive[i])
 		dcreatf := dcreat.Format("2006-01-02")
 		dir := listDirArchive[i]
-		size := sizeFile(listDirArchive[i])
-		sizeint := sizeFileInt(listDirArchive[i])
+		size, _ := sizeFile(listDirArchive[i])
+		_, sizeint := sizeFile(listDirArchive[i])
 		if sizeint > smallfile {
 			fmt.Fprintf(w, "<tr>" +
 				"<td align=\"left\" \">%s</td>" +
@@ -359,21 +359,25 @@ func daysAgo(path string, now time.Time) float64 {
 //	return days
 //}
 
-//func return file size string format
-func sizeFile(path string) string {
+//func return file size string and int64 format
+func sizeFile(path string) (string, int64) {
 	stat, err := os.Stat(path)
+
 	sizeStr, err := convertSize(stat.Size())
+	sizeInt64 := stat.Size()
+
 	checkErr(err)
-	return sizeStr
+
+	return sizeStr, sizeInt64
 }
 
-//func return file size int64 format
-func sizeFileInt(path string) int64 {
-	stat, err := os.Stat(path)
-	sizeStr := stat.Size()
-	checkErr(err)
-	return sizeStr
-}
+////func return file size int64 format
+//func sizeFileInt(path string) int64 {
+//	stat, err := os.Stat(path)
+//	sizeStr := stat.Size()
+//	checkErr(err)
+//	return sizeStr
+//}
 
 func checkErr(err error) {
 	if err != nil {
