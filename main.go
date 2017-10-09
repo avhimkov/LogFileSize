@@ -122,7 +122,8 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 
 	if typefiles == ".zip" {
 		for j := range listDirArchive{
-			UnZip(listDirArchive[j], temp + listDirArchive[j])
+			UnZip(listDirArchive[j], temp)
+			//UnZip(listDirArchive[j], temp + listDirArchive[j])
 		}
 
 		for i := range listDirArchive {
@@ -346,28 +347,6 @@ func dateCreate(path string) (time.Time, float64) {
 	return modifiedtime, days
 }
 
-//func calculate days ago
-//func daysAgo(path string, now time.Time) float64 {
-//	diff := now.Sub(dateCreate(path))
-//	days := float64(diff.Hours() / 24)
-//	return days
-//}
-
-//func daysAgo(path string, now time.Time) float64 {
-//	dateCreate(path)
-//	file, err := os.Stat(path)
-//	if err != nil {
-//		fmt.Println(err)
-//	}
-//	modifiedtime := file.ModTime()
-//	if err != nil {
-//		fmt.Println(err)
-//	}
-//	diff := now.Sub(modifiedtime)
-//	days := float64(diff.Hours() / 24)
-//	return days
-//}
-
 //func return file size string and int64 format
 func sizeFile(path string) (string, int64) {
 	stat, err := os.Stat(path)
@@ -377,26 +356,11 @@ func sizeFile(path string) (string, int64) {
 	return sizeStr, sizeInt64
 }
 
-////func return file size int64 format
-//func sizeFileInt(path string) int64 {
-//	stat, err := os.Stat(path)
-//	sizeStr := stat.Size()
-//	checkErr(err)
-//	return sizeStr
-//}
-
 func checkErr(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
 }
-
-//func exists(path string) (bool, error) {
-//	_, err := os.Stat(path)
-//	if err == nil { return true, nil }
-//	if os.IsNotExist(err) { return false, nil }
-//	return true, err
-//}
 
 //func return list files in dir appropriate type file and date create
 func copyFile(src string, dst string) {
@@ -411,7 +375,9 @@ func copyFile(src string, dst string) {
 //UnZip file
 func UnZip(archive, target string) error {
 	reader, err := zip.OpenReader(archive)
-	checkErr(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 	if err := os.MkdirAll(target, 0755); err != nil {
 		return err
 	}
@@ -422,11 +388,15 @@ func UnZip(archive, target string) error {
 			continue
 		}
 		fileReader, err := file.Open()
-		checkErr(err)
+		if err != nil {
+			log.Fatal(err)
+		}
 		defer fileReader.Close()
 
 		targetFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
-		checkErr(err)
+		if err != nil {
+			log.Fatal(err)
+		}
 		defer targetFile.Close()
 
 		if _, err := io.Copy(targetFile, fileReader); err != nil {
