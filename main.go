@@ -16,10 +16,6 @@ import (
 	"io/ioutil"
 )
 
-//var (
-//	day = time.Now()
-//)
-
 func main() {
 	//load config
 	conf()
@@ -118,7 +114,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 	windowS := dir + windowform
 	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >" + windowform+"  Время: " + timemodif + "</td></tr>")
 
-	listDirArchive := listFiles(windowS, typefiles, date, timemodif) //2017-03-29
+	listDirArchive, _ := listFiles(windowS, typefiles, date, timemodif) //2017-03-29
 
 	if typefiles == ".zip" {
 		for j := range listDirArchive{
@@ -200,7 +196,8 @@ func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 	archive := viper.GetString("filetype.archivefile")
 	dir := viper.GetString("dir.works")
 
-	listDirArchive := listFilesDate(dir, archive, date) //2017-03-29
+	_, listDirArchive := listFiles(dir, archive, date, "") //2017-03-29
+	//listDirArchive := listFilesDate(dir, archive, date) //2017-03-29
 
 	for i := range listDirArchive {
 		smallfile := viper.GetInt64("size.file")
@@ -231,12 +228,14 @@ func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func listFiles(rootpath string, typefile string, data string, time string) []string {
+func listFiles(rootpath string, typefile string, data string, time string) ([]string, []string) {
 
 	list := make([]string, 0, 10)
+	list1 := make([]string, 0, 10)
 
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
 		modification := info.ModTime().Format("2006-01-02")
+		modification1 := info.ModTime().Format("2006-01-02")
 		timetempleat := info.ModTime().Format("3")
 
 		if info.IsDir() {
@@ -249,35 +248,17 @@ func listFiles(rootpath string, typefile string, data string, time string) []str
 				}
 			}
 		}
-		return nil
-	})
-	if err != nil {
-		fmt.Printf("walk error [%v]\n", err)
-	}
-	return list
-}
-
-func listFilesDate(rootpath string, typefile string, data string) []string {
-
-	list := make([]string, 0, 10)
-
-	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
-		modification := info.ModTime().Format("2006-01-02")
-
-		if info.IsDir() {
-			return nil
-		}
-		if modification == data {
-				if filepath.Ext(path) == typefile {
-					list = append(list, path)
-				}
+		if modification1 == data {
+			if filepath.Ext(path) == typefile {
+				list1 = append(list1, path)
+			}
 		}
 		return nil
 	})
 	if err != nil {
 		fmt.Printf("walk error [%v]\n", err)
 	}
-	return list
+	return list, list1
 }
 
 //func return list files in dir appropriate type file
@@ -375,9 +356,7 @@ func copyFile(src string, dst string) {
 //UnZip file
 func UnZip(archive, target string) error {
 	reader, err := zip.OpenReader(archive)
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkErr(err)
 	if err := os.MkdirAll(target, 0755); err != nil {
 		return err
 	}
@@ -388,15 +367,11 @@ func UnZip(archive, target string) error {
 			continue
 		}
 		fileReader, err := file.Open()
-		if err != nil {
-			log.Fatal(err)
-		}
+		checkErr(err)
 		defer fileReader.Close()
 
 		targetFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
-		if err != nil {
-			log.Fatal(err)
-		}
+		checkErr(err)
 		defer targetFile.Close()
 
 		if _, err := io.Copy(targetFile, fileReader); err != nil {
