@@ -235,7 +235,6 @@ func listFiles(rootpath string, typefile string, data string, time string) ([]st
 
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
 		modification := info.ModTime().Format("2006-01-02")
-		modification1 := info.ModTime().Format("2006-01-02")
 		timetempleat := info.ModTime().Format("3")
 
 		if info.IsDir() {
@@ -248,7 +247,7 @@ func listFiles(rootpath string, typefile string, data string, time string) ([]st
 				}
 			}
 		}
-		if modification1 == data {
+		if modification == data {
 			if filepath.Ext(path) == typefile {
 				list1 = append(list1, path)
 			}
