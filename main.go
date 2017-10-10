@@ -60,9 +60,7 @@ func render(w http.ResponseWriter, tmpl string) {
 		log.Print("template parsing error: ", err)
 	}
 	err = t.Execute(w, "")
-	if err != nil {
-		log.Print("template executing error: ", err)
-	}
+	checkErr(err)
 }
 
 //render table, calendar and button for table monit
@@ -71,10 +69,7 @@ func head(w http.ResponseWriter, r *http.Request) string {
 	r.ParseForm()
 	date := r.Form.Get("calendar")
 	t, err := template.ParseFiles("templates/headtpl.html")
-	if err != nil {
-		fmt.Fprint(w, "<p>page not found 404</p>")
-		panic(err)
-	}
+	checkErr(err)
 	t.Execute(w, date)
 	return date
 }
@@ -92,10 +87,11 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string, string) {
 	windowform := r.Form.Get("window")
 	timemodif := r.Form.Get("time")
 	t, err := template.ParseFiles("templates/range.html")
-	if err != nil {
-		fmt.Fprint(w, "<p>page not found 404</p>")
-		panic(err)
-	}
+	checkErr(err)
+	//if err != nil {
+	//	fmt.Fprint(w, "<p>page not found 404</p>")
+	//	panic(err)
+	//}
 	t.ExecuteTemplate(w, "window", window)
 	t.ExecuteTemplate(w, "time", timeform)
 	return date, windowform, timemodif
@@ -104,8 +100,6 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string, string) {
 //render tableaudio
 func tableAudio(w http.ResponseWriter, r *http.Request) {
 	typefiles := viper.GetString("filetype.archivefile")
-
-	//exists(viper.GetString("dir.works"))
 
 	dir := viper.GetString("dir.works")
 	temp := viper.GetString("dir.temp")
@@ -254,9 +248,7 @@ func listFiles(rootpath string, typefile string, data string, time string) ([]st
 		}
 		return nil
 	})
-	if err != nil {
-		fmt.Printf("walk error [%v]\n", err)
-	}
+	checkErr(err)
 	return list, list1
 }
 
@@ -272,9 +264,7 @@ func listFilesClear(rootpath string, typefile string) []string {
 		}
 		return nil
 	})
-	if err != nil {
-		fmt.Printf("walk error [%v]\n", err)
-	}
+	checkErr(err)
 	return list
 }
 
