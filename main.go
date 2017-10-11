@@ -108,7 +108,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 	windowS := dir + windowform
 	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >" + windowform+"  Время: " + timemodif + "</td></tr>")
 
-	listDirArchive, _ := listFiles(windowS, typefiles, date, timemodif) //2017-03-29
+	listDirArchive, _ , _:= listFiles(windowS, typefiles, date, timemodif) //2017-03-29
 
 	if typefiles == ".zip" {
 		for j := range listDirArchive{
@@ -131,7 +131,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 
 			size, _ := sizeFile(listDirArchive[i])
 
-			listDirTemp := listFilesClear(temp, audiofile)
+			_, _, listDirTemp := listFiles(temp, audiofile, "","")
 			dirtemp := listDirTemp[i]
 
 			fmt.Fprintf(w, "<tr>" +
@@ -166,7 +166,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 
 			size, _ := sizeFile(listDirArchive[i])
 
-			listDirTemp := listFilesClear(temp, audiofile)
+			_, _, listDirTemp := listFiles(temp, audiofile, "","")
 			dirtemp := listDirTemp[i]
 
 			fmt.Fprintf(w, "<tr>" +
@@ -190,7 +190,7 @@ func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 	archive := viper.GetString("filetype.archivefile")
 	dir := viper.GetString("dir.works")
 
-	_, listDirArchive := listFiles(dir, archive, date, "") //2017-03-29
+	_, listDirArchive, _ := listFiles(dir, archive, date, "") //2017-03-29
 	//listDirArchive := listFilesDate(dir, archive, date) //2017-03-29
 
 	for i := range listDirArchive {
@@ -222,10 +222,11 @@ func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func listFiles(rootpath string, typefile string, data string, time string) ([]string, []string) {
+func listFiles(rootpath string, typefile string, data string, time string) ([]string, []string, []string) {
 
 	list := make([]string, 0, 10)
 	list1 := make([]string, 0, 10)
+	list2 := make([]string, 0, 10)
 
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
 		modification := info.ModTime().Format("2006-01-02")
@@ -246,27 +247,31 @@ func listFiles(rootpath string, typefile string, data string, time string) ([]st
 				list1 = append(list1, path)
 			}
 		}
+
+		if filepath.Ext(path) == typefile {
+			list2 = append(list2, path)
+		}
 		return nil
 	})
 	checkErr(err)
-	return list, list1
+	return list, list1, list2
 }
 
 //func return list files in dir appropriate type file
-func listFilesClear(rootpath string, typefile string) []string {
-	list := make([]string, 0, 10)
-	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
-		if info.IsDir() {
-			return nil
-		}
-		if filepath.Ext(path) == typefile {
-			list = append(list, path)
-		}
-		return nil
-	})
-	checkErr(err)
-	return list
-}
+//func listFilesClear(rootpath string, typefile string) []string {
+//	list := make([]string, 0, 10)
+//	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
+//		if info.IsDir() {
+//			return nil
+//		}
+//		if filepath.Ext(path) == typefile {
+//			list = append(list, path)
+//		}
+//		return nil
+//	})
+//	checkErr(err)
+//	return list
+//}
 
 //func http server
 func runHTTP() {
