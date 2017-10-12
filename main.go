@@ -88,10 +88,6 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string, string) {
 	timemodif := r.Form.Get("time")
 	t, err := template.ParseFiles("templates/range.html")
 	checkErr(err)
-	//if err != nil {
-	//	fmt.Fprint(w, "<p>page not found 404</p>")
-	//	panic(err)
-	//}
 	t.ExecuteTemplate(w, "window", window)
 	t.ExecuteTemplate(w, "time", timeform)
 	return date, windowform, timemodif
@@ -113,7 +109,6 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 	if typefiles == ".zip" {
 		for j := range listDirArchive{
 			UnZip(listDirArchive[j], temp)
-			//UnZip(listDirArchive[j], temp + listDirArchive[j])
 		}
 
 		for i := range listDirArchive {
@@ -124,7 +119,6 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 			dcreatf := dcreat.Format("2006-01-02")
 
 			_, daysAgo := dateCreate(listDirArchive[i])
-			//daysAgo := daysAgo(listDirArchive[i], day)
 
 			dhoursAgo, _ := dateCreate(listDirArchive[i])
 			dhoursAgof := dhoursAgo.Hour()
@@ -159,7 +153,6 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 			dcreatf := dcreat.Format("2006-01-02")
 
 			_, daysAgo := dateCreate(listDirArchive[i])
-			//daysAgo := daysAgo(listDirArchive[i], day)
 
 			dhoursAgo, _ := dateCreate(listDirArchive[i])
 			dhoursAgof := dhoursAgo.Hour()
@@ -191,12 +184,10 @@ func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 	dir := viper.GetString("dir.works")
 
 	_, listDirArchive, _ := listFiles(dir, archive, date, "") //2017-03-29
-	//listDirArchive := listFilesDate(dir, archive, date) //2017-03-29
 
 	for i := range listDirArchive {
 		smallfile := viper.GetInt64("size.file")
 		_, daysAgo := dateCreate(listDirArchive[i])
-		//daysAgo := daysAgo(listDirArchive[i], day)
 		dcreat, _ := dateCreate(listDirArchive[i])
 		dcreatf := dcreat.Format("2006-01-02")
 		dir := listDirArchive[i]
@@ -257,22 +248,6 @@ func listFiles(rootpath string, typefile string, data string, time string) ([]st
 	return list, list1, list2
 }
 
-//func return list files in dir appropriate type file
-//func listFilesClear(rootpath string, typefile string) []string {
-//	list := make([]string, 0, 10)
-//	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
-//		if info.IsDir() {
-//			return nil
-//		}
-//		if filepath.Ext(path) == typefile {
-//			list = append(list, path)
-//		}
-//		return nil
-//	})
-//	checkErr(err)
-//	return list
-//}
-
 //func http server
 func runHTTP() {
 	dirServer := viper.GetString("dir.server")
@@ -284,10 +259,6 @@ func runHTTP() {
 	http.HandleFunc(dirServer, func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
 	})
-
-	//http.HandleFunc(dirWorks, func(w http.ResponseWriter, r *http.Request) {
-	//	http.ServeFile(w, r, r.URL.Path[1:])
-	//})
 
 	http.HandleFunc("/bootstrap/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
