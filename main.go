@@ -20,8 +20,7 @@ func main() {
 	//load config
 	conf()
 	//clear temp folder
-	var temp = viper.GetString("dir.temp")
-	os.RemoveAll(temp)
+	os.RemoveAll(viper.GetString("dir.temp"))
 	//run http server
 	runHTTP()
 }
@@ -32,10 +31,7 @@ func conf() {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Println("No configuration file loaded - using defaults")
-	}
-	viper.SetDefault("msg", "Hello World (default)")
+	checkErr(err)
 }
 
 //render page audio lessen
@@ -142,11 +138,10 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		for j := range listDirArchive{
-			copyFile(listDirArchive[j], temp + listDirArchive[j])
+			copyFile(listDirArchive[j], listDirArchive[j])
 		}
 		for i := range listDirArchive {
 			audiofile := viper.GetString("filetype.audiofile")
-
 			dir := listDirArchive[i]
 
 			dcreat, _ := dateCreate(listDirArchive[i])
