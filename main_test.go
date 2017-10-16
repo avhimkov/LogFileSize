@@ -7,31 +7,32 @@ import (
 	"time"
 )
 
-func Test_main(t *testing.T) {
-	tests := []struct {
-		name string
-	}{
-		// TODO: Add test cases.
-	}
-	for range tests {
-		t.Run(t.name, func(t *testing.T) {
-			main()
-		})
-	}
-}
+//func Test_main(t *testing.T) {
+//	tests := []struct {
+//		name string
+//	}{
+//		// TODO: Add test cases.
+//	}
+//	for range tests {
+//		t.Run(tt.name, func(t *testing.T) {
+//			main()
+//		})
+//	}
+//}
 
-func Test_conf(t *testing.T) {
-	tests := []struct {
-		name string
-	}{
-		// TODO: Add test cases.
-	}
-	for range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			conf()
-		})
-	}
-}
+//func Test_conf(t *testing.T) {
+//	tests := []struct {
+//		name string
+//	}{
+//		{},
+//		// TODO: Add test cases.
+//	}
+//	for range tests {
+//		t.Run(tt.name, func(t *testing.T) {
+//			conf()
+//		})
+//	}
+//}
 
 func Test_audioListen(t *testing.T) {
 	type args struct {
@@ -42,6 +43,7 @@ func Test_audioListen(t *testing.T) {
 		name string
 		args args
 	}{
+
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
@@ -206,18 +208,19 @@ func Test_listFiles(t *testing.T) {
 	}
 }
 
-func Test_runHTTP(t *testing.T) {
-	tests := []struct {
-		name string
-	}{
-		// TODO: Add test cases.
-	}
-	for range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			runHTTP()
-		})
-	}
-}
+//func Test_runHTTP(t *testing.T) {
+//	tests := []struct {
+//		name string
+//	}{
+//
+//		// TODO: Add test cases.
+//	}
+//	for range tests {
+//		t.Run(tt.name, func(t *testing.T) {
+//			runHTTP()
+//		})
+//	}
+//}
 
 func TestConvertSize(t *testing.T) {
 	type args struct {
@@ -229,6 +232,7 @@ func TestConvertSize(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
+		//{"ConvertSize", args{7}, "MB", nil},
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
@@ -255,6 +259,7 @@ func TestDateCreate(t *testing.T) {
 		want  time.Time
 		want1 float64
 	}{
+		{"DateCreate", args{"D:/blabla/Окно №3/25_20161102-00139_02-11-2016_19-28.zip"}, time.Date(2016, 11, 02, 19, 28, 17, 17, time.UTC), 348.047},
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
@@ -280,6 +285,7 @@ func TestSizeFile(t *testing.T) {
 		want  string
 		want1 int64
 	}{
+		{"Size", args{"D:/blabla/Окно №3/25_20161102-00139_02-11-2016_19-28.zip"},"7 MB", 7467273},
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
