@@ -7,33 +7,6 @@ import (
 	"time"
 )
 
-//func Test_main(t *testing.T) {
-//	tests := []struct {
-//		name string
-//	}{
-//		// TODO: Add test cases.
-//	}
-//	for range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			main()
-//		})
-//	}
-//}
-
-//func Test_conf(t *testing.T) {
-//	tests := []struct {
-//		name string
-//	}{
-//		{},
-//		// TODO: Add test cases.
-//	}
-//	for range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			conf()
-//		})
-//	}
-//}
-
 func Test_audioListen(t *testing.T) {
 	type args struct {
 		w http.ResponseWriter
@@ -43,8 +16,7 @@ func Test_audioListen(t *testing.T) {
 		name string
 		args args
 	}{
-
-		// TODO: Add test cases.
+		{"audioListen", args{w:nil, r:nil}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -62,7 +34,7 @@ func TestShowStat(t *testing.T) {
 		name string
 		args args
 	}{
-		// TODO: Add test cases.
+		{"tableMonitoring", args{w:nil, r:nil}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -80,7 +52,7 @@ func Test_render(t *testing.T) {
 		name string
 		args args
 	}{
-		// TODO: Add test cases.
+		{"tableMonitoring", args{w:nil, tmpl:""}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -99,7 +71,7 @@ func Test_head(t *testing.T) {
 		args args
 		want string
 	}{
-		// TODO: Add test cases.
+		{"tableMonitoring", args{w:nil, r:nil}, ""},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -122,7 +94,7 @@ func Test_htmlRang(t *testing.T) {
 		want1 string
 		want2 string
 	}{
-		// TODO: Add test cases.
+		{"tableMonitoring", args{w:nil, r:nil}, "","", ""},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -149,7 +121,7 @@ func Test_tableAudio(t *testing.T) {
 		name string
 		args args
 	}{
-		// TODO: Add test cases.
+		{"tableMonitoring", args{w:nil, r:nil}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -167,7 +139,7 @@ func Test_tableMonitoring(t *testing.T) {
 		name string
 		args args
 	}{
-		// TODO: Add test cases.
+		{"tableMonitoring", args{w:nil, r:nil}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -190,7 +162,7 @@ func Test_listFiles(t *testing.T) {
 		want1 []string
 		want2 []string
 	}{
-		// TODO: Add test cases.
+		{"ConvertSize", args{"","","",""}, []string {"a","b","c"}, []string {"a","b","c"}, []string {"a","b","c"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -208,20 +180,6 @@ func Test_listFiles(t *testing.T) {
 	}
 }
 
-//func Test_runHTTP(t *testing.T) {
-//	tests := []struct {
-//		name string
-//	}{
-//
-//		// TODO: Add test cases.
-//	}
-//	for range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			runHTTP()
-//		})
-//	}
-//}
-
 func TestConvertSize(t *testing.T) {
 	type args struct {
 		size int64
@@ -232,8 +190,7 @@ func TestConvertSize(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-		//{"ConvertSize", args{7}, "MB", nil},
-		// TODO: Add test cases.
+		{"ConvertSize", args{7}, "MB", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -260,7 +217,6 @@ func TestDateCreate(t *testing.T) {
 		want1 float64
 	}{
 		{"DateCreate", args{"D:/blabla/Окно №3/25_20161102-00139_02-11-2016_19-28.zip"}, time.Date(2016, 11, 02, 19, 28, 17, 17, time.UTC), 348.047},
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -286,7 +242,6 @@ func TestSizeFile(t *testing.T) {
 		want1 int64
 	}{
 		{"Size", args{"D:/blabla/Окно №3/25_20161102-00139_02-11-2016_19-28.zip"},"7 MB", 7467273},
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -301,23 +256,6 @@ func TestSizeFile(t *testing.T) {
 	}
 }
 
-func Test_checkErr(t *testing.T) {
-	type args struct {
-		err error
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			checkErr(tt.args.err)
-		})
-	}
-}
-
 func TestUnZip(t *testing.T) {
 	type args struct {
 		archive string
@@ -328,6 +266,7 @@ func TestUnZip(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
+		{"", args{"D:/blabla/Окно №3/25_20161102-00139_02-11-2016_19-28.zip", "file/temp"}, true},
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
