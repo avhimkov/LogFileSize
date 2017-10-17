@@ -7,42 +7,6 @@ import (
 	"time"
 )
 
-func Test_audioListen(t *testing.T) {
-	type args struct {
-		w http.ResponseWriter
-		r *http.Request
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		{"audioListen", args{w:nil, r:nil}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			audioListen(tt.args.w, tt.args.r)
-		})
-	}
-}
-
-func TestShowStat(t *testing.T) {
-	type args struct {
-		w http.ResponseWriter
-		r *http.Request
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		{"tableMonitoring", args{w:nil, r:nil}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ShowStat(tt.args.w, tt.args.r)
-		})
-	}
-}
-
 func Test_render(t *testing.T) {
 	type args struct {
 		w    http.ResponseWriter
@@ -52,7 +16,8 @@ func Test_render(t *testing.T) {
 		name string
 		args args
 	}{
-		{"tableMonitoring", args{w:nil, tmpl:""}},
+		{"tableMonitoring", args{w:nil, tmpl:"header.html"}},
+		{"tableMonitoring", args{w:nil, tmpl:"footer.html"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -71,7 +36,7 @@ func Test_head(t *testing.T) {
 		args args
 		want string
 	}{
-		{"tableMonitoring", args{w:nil, r:nil}, ""},
+		{"tableMonitoring", args{w:nil, r:nil}, "2017-03-03"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -94,7 +59,7 @@ func Test_htmlRang(t *testing.T) {
 		want1 string
 		want2 string
 	}{
-		{"tableMonitoring", args{w:nil, r:nil}, "","", ""},
+		{"tableMonitoring", args{nil, nil}, "2017-03-03","Окно №3", "3"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -112,41 +77,41 @@ func Test_htmlRang(t *testing.T) {
 	}
 }
 
-func Test_tableAudio(t *testing.T) {
-	type args struct {
-		w http.ResponseWriter
-		r *http.Request
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		{"tableMonitoring", args{w:nil, r:nil}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tableAudio(tt.args.w, tt.args.r)
-		})
-	}
-}
+//func Test_tableAudio(t *testing.T) {
+//	type args struct {
+//		w http.ResponseWriter
+//		r *http.Request
+//	}
+//	tests := []struct {
+//		name string
+//		args args
+//	}{
+//		//{"tableMonitoring", args{w:nil, r:nil}},
+//	}
+//	for _, tt := range tests {
+//		t.Run(tt.name, func(t *testing.T) {
+//			tableAudio(tt.args.w, tt.args.r)
+//		})
+//	}
+//}
 
-func Test_tableMonitoring(t *testing.T) {
-	type args struct {
-		w http.ResponseWriter
-		r *http.Request
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		{"tableMonitoring", args{w:nil, r:nil}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tableMonitoring(tt.args.w, tt.args.r)
-		})
-	}
-}
+//func Test_tableMonitoring(t *testing.T) {
+//	type args struct {
+//		w http.ResponseWriter
+//		r *http.Request
+//	}
+//	tests := []struct {
+//		name string
+//		args args
+//	}{
+//		{"tableMonitoring", args{w:nil, r:nil}},
+//	}
+//	for _, tt := range tests {
+//		t.Run(tt.name, func(t *testing.T) {
+//			tableMonitoring(tt.args.w, tt.args.r)
+//		})
+//	}
+//}
 
 func Test_listFiles(t *testing.T) {
 	type args struct {
@@ -162,7 +127,10 @@ func Test_listFiles(t *testing.T) {
 		want1 []string
 		want2 []string
 	}{
-		{"ConvertSize", args{"","","",""}, []string {"a","b","c"}, []string {"a","b","c"}, []string {"a","b","c"}},
+		{"ConvertSize", args{"D:/blabla/","zip","",""},
+		 []string {"25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip"},
+		 []string {"25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip"},
+		 []string {"25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -190,7 +158,7 @@ func TestConvertSize(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-		{"ConvertSize", args{7}, "MB", true},
+		{"ConvertSize", args{7}, "MB", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
