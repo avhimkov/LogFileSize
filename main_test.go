@@ -5,9 +5,13 @@ import (
 	"reflect"
 	"testing"
 	"time"
+	"net/http/httptest"
 )
 
 func Test_render(t *testing.T) {
+
+	rr := httptest.NewRecorder()
+
 	type args struct {
 		w    http.ResponseWriter
 		tmpl string
@@ -16,8 +20,8 @@ func Test_render(t *testing.T) {
 		name string
 		args args
 	}{
-		{"tableMonitoring", args{w:nil, tmpl:"header.html"}},
-		{"tableMonitoring", args{w:nil, tmpl:"footer.html"}},
+		{"tableMonitoring", args{w: rr, tmpl:"header.html"}},
+		{"tableMonitoring", args{w: rr, tmpl:"footer.html"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -27,6 +31,12 @@ func Test_render(t *testing.T) {
 }
 
 func Test_head(t *testing.T) {
+
+	req, _ := http.NewRequest("GET", "/", nil)
+	rr := httptest.NewRecorder()
+
+	//handler := http.HandlerFunc(Index)
+
 	type args struct {
 		w http.ResponseWriter
 		r *http.Request
@@ -36,7 +46,7 @@ func Test_head(t *testing.T) {
 		args args
 		want string
 	}{
-		{"tableMonitoring", args{w:nil, r:nil}, "2017-03-03"},
+		{name: "tableMonitoring",  args: args{w: rr, r: req}, want:"2017-03-03"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -48,6 +58,10 @@ func Test_head(t *testing.T) {
 }
 
 func Test_htmlRang(t *testing.T) {
+
+	req, _ := http.NewRequest("GET", "/", nil)
+	rr := httptest.NewRecorder()
+
 	type args struct {
 		w http.ResponseWriter
 		r *http.Request
@@ -59,7 +73,7 @@ func Test_htmlRang(t *testing.T) {
 		want1 string
 		want2 string
 	}{
-		{"tableMonitoring", args{nil, nil}, "2017-03-03","Окно №3", "3"},
+		{"tableMonitoring", args{w: rr, r: req}, "2017-03-03","Окно №3", "3"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -128,9 +142,9 @@ func Test_listFiles(t *testing.T) {
 		want2 []string
 	}{
 		{"ConvertSize", args{"D:/blabla/","zip","",""},
-		 []string {"25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip"},
-		 []string {"25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip"},
-		 []string {"25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip"}},
+			[]string {"25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip"},
+			[]string {"25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip"},
+			[]string {"25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip","25_20161102-00139_02-11-2016_19-28.zip"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -235,7 +249,6 @@ func TestUnZip(t *testing.T) {
 		wantErr bool
 	}{
 		{"", args{"D:/blabla/Окно №3/25_20161102-00139_02-11-2016_19-28.zip", "file/temp"}, true},
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
