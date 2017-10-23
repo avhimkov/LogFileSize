@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/viper"
 	"strings"
 	"io/ioutil"
+	"sync"
 )
 
 func main() {
@@ -98,12 +99,12 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 	date, windowform, timemodif := htmlRang(w, r)
 
 	windowS := dir + windowform
-	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >" + windowform+"  Время: " + timemodif + "</td></tr>")
+	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >"+windowform+"  Время: "+timemodif+"</td></tr>")
 
-	listDirArchive, _ , _:= listFiles(windowS, typefiles, date, timemodif) //2017-03-29
+	listDirArchive, _, _ := listFiles(windowS, typefiles, date, timemodif) //2017-03-29
 
 	if typefiles == ".zip" {
-		for j := range listDirArchive{
+		for j := range listDirArchive {
 			UnZip(listDirArchive[j], temp)
 		}
 
@@ -121,23 +122,23 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 
 			size, _ := SizeFile(listDirArchive[i])
 
-			_, _, listDirTemp := listFiles(temp, audiofile, "","")
+			_, _, listDirTemp := listFiles(temp, audiofile, "", "")
 			dirtemp := listDirTemp[i]
 
-			fmt.Fprintf(w, "<tr>" +
-				"<td align=\"left\" \">%s</td>" +
-				"<td align=\"center\" >%s</td>" +
-				"<td align=\"center\" >%.2f дней</td>" +
-				"<td align=\"center\" >%d часов</td>" +
-				"<td align=\"center\">%s</td>" +
-				"<td align=\"center\">" +
-				"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>" +
+			fmt.Fprintf(w, "<tr>"+
+				"<td align=\"left\" \">%s</td>"+
+				"<td align=\"center\" >%s</td>"+
+				"<td align=\"center\" >%.2f дней</td>"+
+				"<td align=\"center\" >%d часов</td>"+
+				"<td align=\"center\">%s</td>"+
+				"<td align=\"center\">"+
+				"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>"+
 				"</td></tr>",
 				//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
 				dir, dcreatf, daysAgo, dhoursAgof, size, dirtemp)
 		}
 	} else {
-		for j := range listDirArchive{
+		for j := range listDirArchive {
 			CopyFile(listDirArchive[j], listDirArchive[j])
 		}
 		for i := range listDirArchive {
@@ -154,17 +155,17 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 
 			size, _ := SizeFile(listDirArchive[i])
 
-			_, _, listDirTemp := listFiles(temp, audiofile, "","")
+			_, _, listDirTemp := listFiles(temp, audiofile, "", "")
 			dirtemp := listDirTemp[i]
 
-			fmt.Fprintf(w, "<tr>" +
-				"<td align=\"left\" \">%s</td>" +
-				"<td align=\"center\" >%s</td>" +
-				"<td align=\"center\" >%.2f дней</td>" +
-				"<td align=\"center\" >%d часов</td>" +
-				"<td align=\"center\">%s</td>" +
-				"<td align=\"center\">" +
-				"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>" +
+			fmt.Fprintf(w, "<tr>"+
+				"<td align=\"left\" \">%s</td>"+
+				"<td align=\"center\" >%s</td>"+
+				"<td align=\"center\" >%.2f дней</td>"+
+				"<td align=\"center\" >%d часов</td>"+
+				"<td align=\"center\">%s</td>"+
+				"<td align=\"center\">"+
+				"<form action=\"%s\"><input type=\"submit\" class=\"btn btn-primary\" value=\"Прослушать\"/></form>"+
 				"</td></tr>",
 				//"<td align=\"center\" style=\"width: 100px;\"><audio controls><source src=%s type=\"audio/wav\"></audio></td></tr>",
 				dir, dcreatf, daysAgo, dhoursAgof, size, dirtemp)
@@ -189,19 +190,19 @@ func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 		size, _ := SizeFile(listDirArchive[i])
 		_, sizeint := SizeFile(listDirArchive[i])
 		if sizeint > smallfile {
-			fmt.Fprintf(w, "<tr>" +
-				"<td align=\"left\" \">%s</td>" +
-				"<td align=\"center\" >%s</td>" +
-				"<td align=\"center\" >%.2f дней</td>" +
-				"<td align=\"center\">%s</td>" +
+			fmt.Fprintf(w, "<tr>"+
+				"<td align=\"left\" \">%s</td>"+
+				"<td align=\"center\" >%s</td>"+
+				"<td align=\"center\" >%.2f дней</td>"+
+				"<td align=\"center\">%s</td>"+
 				"</tr>",
 				dir, dcreatf, daysAgo, size)
 		} else {
-			fmt.Fprintf(w, "<tr>" +
-				"<td bgcolor=\"#ffcc00\" align=\"left\" \">%s</td>" +
-				"<td bgcolor=\"#ffcc00\" align=\"center\" >%s</td>" +
-				"<td bgcolor=\"#ffcc00\" align=\"center\" >%.2f дней</td>" +
-				"<td bgcolor=\"#ffcc00\" align=\"center\">%s</td>" +
+			fmt.Fprintf(w, "<tr>"+
+				"<td bgcolor=\"#ffcc00\" align=\"left\" \">%s</td>"+
+				"<td bgcolor=\"#ffcc00\" align=\"center\" >%s</td>"+
+				"<td bgcolor=\"#ffcc00\" align=\"center\" >%.2f дней</td>"+
+				"<td bgcolor=\"#ffcc00\" align=\"center\">%s</td>"+
 				"</tr>",
 				dir, dcreatf, daysAgo, size)
 		}
@@ -218,27 +219,41 @@ func listFiles(rootpath string, typefile string, data string, time string) ([]st
 		modification := info.ModTime().Format("2006-01-02")
 		timetempleat := info.ModTime().Format("3")
 
+		var w sync.WaitGroup
+		w.Add(1)
+
 		if info.IsDir() {
 			return nil
 		}
 		if modification == data {
-			if strings.EqualFold(timetempleat,  time) {
-				if filepath.Ext(path) == typefile {
-					list = append(list, path)
+			go func() {
+				if strings.EqualFold(timetempleat, time) {
+					if filepath.Ext(path) == typefile {
+						list = append(list, path)
+					}
 				}
-			}
+				w.Done()
+			}()
 		}
 		if modification == data {
-			if filepath.Ext(path) == typefile {
-				list1 = append(list1, path)
-			}
+			go func() {
+				if filepath.Ext(path) == typefile {
+					list1 = append(list1, path)
+				}
+				w.Done()
+			}()
 		}
 
 		if filepath.Ext(path) == typefile {
-			list2 = append(list2, path)
+			go func() {
+				list2 = append(list2, path)
+				w.Done()
+			}()
 		}
+		w.Wait()
 		return nil
 	})
+
 	checkErr(err)
 	return list, list1, list2
 }
