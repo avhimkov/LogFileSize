@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/viper"
 	"strings"
 	"io/ioutil"
-	"sync"
+	//"sync"
 )
 
 func main() {
@@ -44,6 +44,12 @@ func audioListen(w http.ResponseWriter, r *http.Request) {
 
 // render page stat all file in all folder
 func ShowStat(w http.ResponseWriter, r *http.Request) {
+	render(w, "header.html")
+	//tableMonitoring(w, r)
+	render(w, "footer.html")
+}
+// render page stat all file in all folder
+func monitorListen(w http.ResponseWriter, r *http.Request) {
 	render(w, "header.html")
 	tableMonitoring(w, r)
 	render(w, "footer.html")
@@ -101,9 +107,8 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 	windowS := dir + windowform
 	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >"+windowform+"  Время: "+timemodif+"</td></tr>")
 
-	listDirArchive, _, _ := listFiles(windowS, typefiles, date, timemodif) //2017-03-29
-
 	if typefiles == ".zip" {
+		listDirArchive, _, _ := listFiles(windowS, typefiles, date, timemodif) //2017-03-29
 		for j := range listDirArchive {
 			UnZip(listDirArchive[j], temp)
 		}
@@ -138,6 +143,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 				dir, dcreatf, daysAgo, dhoursAgof, size, dirtemp)
 		}
 	} else {
+		listDirArchive, _, _ := listFiles(windowS, typefiles, date, timemodif) //2017-03-29
 		for j := range listDirArchive {
 			CopyFile(listDirArchive[j], listDirArchive[j])
 		}
@@ -215,46 +221,36 @@ func listFiles(rootpath string, typefile string, data string, time string) ([]st
 	list1 := make([]string, 0, 10)
 	list2 := make([]string, 0, 10)
 
-	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
-		modification := info.ModTime().Format("2006-01-02")
-		timetempleat := info.ModTime().Format("3")
+	//var w sync.WaitGroup
+	//defer w.Wait()
+	//w.Add(1)
+	//defer w.Done()
+	//	go func() {
+			filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
+				modification := info.ModTime().Format("2006-01-02")
+				timetempleat := info.ModTime().Format("3")
 
-		var w sync.WaitGroup
-		w.Add(1)
-
-		if info.IsDir() {
-			return nil
-		}
-		if modification == data {
-			go func() {
-				if strings.EqualFold(timetempleat, time) {
-					if filepath.Ext(path) == typefile {
-						list = append(list, path)
+				if info.IsDir() {
+					return nil
+				}
+				if modification == data {
+					if strings.EqualFold(timetempleat, time) {
+						if filepath.Ext(path) == typefile {
+							list = append(list, path)
+						}
 					}
 				}
-				w.Done()
-			}()
-		}
-		if modification == data {
-			go func() {
-				if filepath.Ext(path) == typefile {
-					list1 = append(list1, path)
+				if modification == data {
+					if filepath.Ext(path) == typefile {
+						list1 = append(list1, path)
+					}
 				}
-				w.Done()
-			}()
-		}
-
-		if filepath.Ext(path) == typefile {
-			go func() {
-				list2 = append(list2, path)
-				w.Done()
-			}()
-		}
-		w.Wait()
-		return nil
-	})
-
-	checkErr(err)
+				if filepath.Ext(path) == typefile {
+					list2 = append(list2, path)
+				}
+				return nil
+			})
+		//}()
 	return list, list1, list2
 }
 
@@ -264,6 +260,7 @@ func runHTTP() {
 	//dirWorks := viper.GetString("dir.works")
 	http.HandleFunc("/", ShowStat)
 	http.HandleFunc("/audio", audioListen)
+	http.HandleFunc("/monitor", monitorListen)
 	log.Println("http://localhost:8080 Listening...")
 
 	http.HandleFunc(dirServer, func(w http.ResponseWriter, r *http.Request) {
