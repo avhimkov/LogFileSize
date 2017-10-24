@@ -15,6 +15,7 @@ import (
 	"strings"
 	"io/ioutil"
 	//"sync"
+	"runtime"
 )
 
 func main() {
@@ -221,6 +222,11 @@ func listFiles(rootpath string, typefile string, data string, time string) ([]st
 	list1 := make([]string, 0, 10)
 	list2 := make([]string, 0, 10)
 
+	numcpu := runtime.NumCPU()
+	//fmt.Println("NumCPU", numcpu)
+	//runtime.GOMAXPROCS(numcpu)
+	//runtime.GOMAXPROCS(1)
+
 	//var w sync.WaitGroup
 	//defer w.Wait()
 	//w.Add(1)
@@ -245,8 +251,12 @@ func listFiles(rootpath string, typefile string, data string, time string) ([]st
 						list1 = append(list1, path)
 					}
 				}
-				if filepath.Ext(path) == typefile {
-					list2 = append(list2, path)
+				for i := 0; i < numcpu; i++ {
+					go func(i int) {
+						if filepath.Ext(path) == typefile {
+							list2 = append(list2, path)
+						}
+					}(i)
 				}
 				return nil
 			})
