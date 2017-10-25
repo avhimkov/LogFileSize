@@ -49,6 +49,7 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 	//tableMonitoring(w, r)
 	render(w, "footer.html")
 }
+
 // render page stat all file in all folder
 func monitorListen(w http.ResponseWriter, r *http.Request) {
 	render(w, "header.html")
@@ -222,9 +223,11 @@ func listFiles(rootpath string, typefile string, data string, time string) ([]st
 	list1 := make([]string, 0, 10)
 	list2 := make([]string, 0, 10)
 
+	//runtime.GOMAXPROCS(runtime.NumCPU())
+
 	numcpu := runtime.NumCPU()
 	//fmt.Println("NumCPU", numcpu)
-	//runtime.GOMAXPROCS(numcpu)
+	runtime.GOMAXPROCS(numcpu)
 	//runtime.GOMAXPROCS(1)
 
 	//var w sync.WaitGroup
@@ -232,13 +235,16 @@ func listFiles(rootpath string, typefile string, data string, time string) ([]st
 	//w.Add(1)
 	//defer w.Done()
 	//	go func() {
-			filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
-				modification := info.ModTime().Format("2006-01-02")
-				timetempleat := info.ModTime().Format("3")
+	filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
+		modification := info.ModTime().Format("2006-01-02")
+		timetempleat := info.ModTime().Format("3")
 
-				if info.IsDir() {
-					return nil
-				}
+		if info.IsDir() {
+			return nil
+		}
+		//var wg sync.WaitGroup
+		//for i := 0; i < numcpu; i++ {
+		//	go func(i int) {
 				if modification == data {
 					if strings.EqualFold(timetempleat, time) {
 						if filepath.Ext(path) == typefile {
@@ -246,21 +252,29 @@ func listFiles(rootpath string, typefile string, data string, time string) ([]st
 						}
 					}
 				}
+			//}(i)
+		//}
+		for i := 0; i < numcpu; i++ {
+			go func(i int) {
 				if modification == data {
 					if filepath.Ext(path) == typefile {
 						list1 = append(list1, path)
 					}
 				}
-				for i := 0; i < numcpu; i++ {
-					go func(i int) {
-						if filepath.Ext(path) == typefile {
-							list2 = append(list2, path)
-						}
-					}(i)
+			}(i)
+		}
+
+		for i := 0; i < numcpu; i++ {
+			go func(i int) {
+				if filepath.Ext(path) == typefile {
+					list2 = append(list2, path)
 				}
-				return nil
-			})
-		//}()
+			}(i)
+		}
+		//wg.Wait()
+		return nil
+	})
+	//}()
 	return list, list1, list2
 }
 
