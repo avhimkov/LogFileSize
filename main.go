@@ -16,9 +16,12 @@ import (
 	"io/ioutil"
 	//"sync"
 	"runtime"
+	"runtime/pprof"
 )
 
 func main() {
+	pprof.StartCPUProfile(os.Stdout)
+	defer pprof.StopCPUProfile()
 	//load config
 	conf()
 	//clear temp folder
