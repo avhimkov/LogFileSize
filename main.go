@@ -14,7 +14,6 @@ import (
 	"github.com/spf13/viper"
 	"strings"
 	"io/ioutil"
-	//"sync"
 	"runtime"
 	"runtime/pprof"
 )
@@ -226,18 +225,9 @@ func listFiles(rootpath string, typefile string, data string, time string) ([]st
 	list1 := make([]string, 0, 10)
 	list2 := make([]string, 0, 10)
 
-	//runtime.GOMAXPROCS(runtime.NumCPU())
-
 	numcpu := runtime.NumCPU()
-	//fmt.Println("NumCPU", numcpu)
 	runtime.GOMAXPROCS(numcpu)
-	//runtime.GOMAXPROCS(1)
 
-	//var w sync.WaitGroup
-	//defer w.Wait()
-	//w.Add(1)
-	//defer w.Done()
-	//	go func() {
 	filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
 		modification := info.ModTime().Format("2006-01-02")
 		timetempleat := info.ModTime().Format("3")
@@ -245,39 +235,40 @@ func listFiles(rootpath string, typefile string, data string, time string) ([]st
 		if info.IsDir() {
 			return nil
 		}
-		//var wg sync.WaitGroup
-		//for i := 0; i < numcpu; i++ {
-		//	go func(i int) {
-		if modification == data {
-			if strings.EqualFold(timetempleat, time) {
-				if filepath.Ext(path) == typefile {
-					list = append(list, path)
-				}
-			}
-		}
-		//}(i)
-		//}
-		for i := 0; i < numcpu; i++ {
-			go func(i int) {
-				if modification == data {
+
+		//switch typeSearch {
+		//case typeSearch:
+			//list file for folder
+			if modification == data {
+				if strings.EqualFold(timetempleat, time) {
 					if filepath.Ext(path) == typefile {
-						list1 = append(list1, path)
+						list = append(list, path)
 					}
 				}
-			}(i)
-		}
+			}
 
-		for i := 0; i < numcpu; i++ {
-			go func(i int) {
-				if filepath.Ext(path) == typefile {
-					list2 = append(list2, path)
-				}
-			}(i)
-		}
-		//wg.Wait()
-		return nil
-	})
-	//}()
+		//case typeSearch:
+			//list file for date modification
+			for i := 0; i < numcpu; i++ {
+				go func(i int) {
+					if modification == data {
+						if filepath.Ext(path) == typefile {
+							list1 = append(list1, path)
+						}
+					}
+				}(i)
+			}
+		//case typeSearch:
+			//list files for type file
+			for i := 0; i < numcpu; i++ {
+				go func(i int) {
+					if filepath.Ext(path) == typefile {
+						list2 = append(list2, path)
+					}
+				}(i)
+			}
+			return nil
+		})
 	return list, list1, list2
 }
 
