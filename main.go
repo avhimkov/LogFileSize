@@ -112,7 +112,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >"+windowform+"  Время: "+timemodif+"</td></tr>")
 
 	if typefiles == ".zip" {
-		listDirArchive, _, _ := listFiles(windowS, typefiles, date, timemodif) //2017-03-29
+		listDirArchive := listFiles(windowS, typefiles, date, timemodif, "list") //2017-03-29
 		for j := range listDirArchive {
 			UnZip(listDirArchive[j], temp)
 		}
@@ -131,7 +131,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 
 			size, _ := SizeFile(listDirArchive[i])
 
-			_, _, listDirTemp := listFiles(temp, audiofile, "", "")
+			listDirTemp := listFiles(temp, audiofile, "", "", "listf")
 			dirtemp := listDirTemp[i]
 
 			fmt.Fprintf(w, "<tr>"+
@@ -147,7 +147,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 				dir, dcreatf, daysAgo, dhoursAgof, size, dirtemp)
 		}
 	} else {
-		listDirArchive, _, _ := listFiles(windowS, typefiles, date, timemodif) //2017-03-29
+		listDirArchive := listFiles(windowS, typefiles, date, timemodif, "list") //2017-03-29
 		for j := range listDirArchive {
 			CopyFile(listDirArchive[j], listDirArchive[j])
 		}
@@ -165,7 +165,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 
 			size, _ := SizeFile(listDirArchive[i])
 
-			_, _, listDirTemp := listFiles(temp, audiofile, "", "")
+			listDirTemp := listFiles(temp, audiofile, "", "", "listf")
 			dirtemp := listDirTemp[i]
 
 			fmt.Fprintf(w, "<tr>"+
@@ -183,13 +183,13 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//render table montin
+//render table Monitoring
 func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 	date := head(w, r)
 	archive := viper.GetString("filetype.archivefile")
 	dir := viper.GetString("dir.works")
 
-	_, listDirArchive, _ := listFiles(dir, archive, date, "") //2017-03-29
+	listDirArchive := listFiles(dir, archive, date, "", "datamod") //2017-03-29
 
 	for i := range listDirArchive {
 		smallfile := viper.GetInt64("size.file")
@@ -219,25 +219,26 @@ func tableMonitoring(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func listFiles(rootpath string, typefile string, data string, time string) ([]string, []string, []string) {
+func listFiles(rootpath string, typefile string, data string, time string, typeSearch string) []string /*[]string, []string*/ {
 
 	list := make([]string, 0, 10)
-	list1 := make([]string, 0, 10)
-	list2 := make([]string, 0, 10)
+	//list1 := make([]string, 0, 10)
+	//list2 := make([]string, 0, 10)
 
 	numcpu := runtime.NumCPU()
 	runtime.GOMAXPROCS(numcpu)
 
-	filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
-		modification := info.ModTime().Format("2006-01-02")
-		timetempleat := info.ModTime().Format("3")
+	filepath.Walk(rootpath,
+		func(path string, info os.FileInfo, err error) error {
+			modification := info.ModTime().Format("2006-01-02")
+			timetempleat := info.ModTime().Format("3")
 
-		if info.IsDir() {
-			return nil
-		}
+			if info.IsDir() {
+				return nil
+			}
 
-		//switch typeSearch {
-		//case typeSearch:
+			switch typeSearch {
+			case "list":
 			//list file for folder
 			if modification == data {
 				if strings.EqualFold(timetempleat, time) {
@@ -246,30 +247,30 @@ func listFiles(rootpath string, typefile string, data string, time string) ([]st
 					}
 				}
 			}
-
-		//case typeSearch:
+			case "datamod":
 			//list file for date modification
 			for i := 0; i < numcpu; i++ {
 				go func(i int) {
 					if modification == data {
 						if filepath.Ext(path) == typefile {
-							list1 = append(list1, path)
+							list = append(list, path)
 						}
 					}
 				}(i)
 			}
-		//case typeSearch:
+			case "listf":
 			//list files for type file
 			for i := 0; i < numcpu; i++ {
 				go func(i int) {
 					if filepath.Ext(path) == typefile {
-						list2 = append(list2, path)
+						list = append(list, path)
 					}
 				}(i)
 			}
+		}
 			return nil
 		})
-	return list, list1, list2
+	return list //, list1, list2
 }
 
 //func http server
