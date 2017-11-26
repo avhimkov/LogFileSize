@@ -47,22 +47,28 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 
 //render page audio lessen
 func audioListen(w http.ResponseWriter, r *http.Request) {
+	render(w, "header.html")
+
 	typefiles := viper.GetString("filetype.archivefile")
 	temp := viper.GetString("dir.temp")
 	dir := viper.GetString("dir.works")
 
-	render(w, "header.html")
-	tableAudio(w, r, temp, dir, typefiles)
+	date, windowform, timemodif := htmlRang(w, r)
+
+	tableAudio(w, r, temp, dir, typefiles, date, windowform, timemodif)
 	render(w, "footer.html")
 }
 
 // render page stat all file in all folder
 func monitorListen(w http.ResponseWriter, r *http.Request) {
+	render(w, "header.html")
+
 	archive := viper.GetString("filetype.archivefile")
 	dir := viper.GetString("dir.works")
+	date := head(w, r)
 
-	render(w, "header.html")
-	tableMonitoring(w, r, archive, dir)
+	tableMonitoring(w, r, archive, dir, date)
+
 	render(w, "footer.html")
 }
 
@@ -108,13 +114,15 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string, string) {
 }
 
 //render tableaudio
-func tableAudio(w http.ResponseWriter, r *http.Request, temp, dir, typefiles string) {
-	date, windowform, timemodif := htmlRang(w, r)
+func tableAudio(w http.ResponseWriter, r *http.Request, temp, dir, typefiles, date, windowform, timemodif string) {
+	//date, windowform, timemodif := htmlRang(w, r)
+
 	windowS := dir + windowform
-	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >"+windowform+"  Время: "+timemodif+"</td></tr>")
+	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >" + windowform + "  Время: " + timemodif + "</td></tr>")
 
 	if typefiles == ".zip" {
 		listDirArchive := listFiles(windowS, typefiles, date, timemodif, "list") //2017-03-29
+		//listDirArchive := listFiles(windowS, typefiles, date, timemodif, "list") //2017-03-29
 		for j := range listDirArchive {
 			UnZip(listDirArchive[j], temp)
 		}
@@ -186,9 +194,9 @@ func tableAudio(w http.ResponseWriter, r *http.Request, temp, dir, typefiles str
 }
 
 //render table Monitoring
-func tableMonitoring(w http.ResponseWriter, r *http.Request, archive, dir string) {
+func tableMonitoring(w http.ResponseWriter, r *http.Request, archive, dir, date string) {
 
-	date := head(w, r)
+	//date := head(w, r)
 	listDirArchive := listFiles(dir, archive, date, "", "datamod") //2017-03-29
 
 	for i := range listDirArchive {
