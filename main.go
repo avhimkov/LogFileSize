@@ -38,13 +38,6 @@ func conf() {
 	checkErr(err)
 }
 
-//render page audio lessen
-func audioListen(w http.ResponseWriter, r *http.Request) {
-	render(w, "header.html")
-	tableAudio(w, r)
-	render(w, "footer.html")
-}
-
 // render page stat all file in all folder
 func ShowStat(w http.ResponseWriter, r *http.Request) {
 	render(w, "header.html")
@@ -52,10 +45,24 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 	render(w, "footer.html")
 }
 
+//render page audio lessen
+func audioListen(w http.ResponseWriter, r *http.Request) {
+	typefiles := viper.GetString("filetype.archivefile")
+	temp := viper.GetString("dir.temp")
+	dir := viper.GetString("dir.works")
+
+	render(w, "header.html")
+	tableAudio(w, r, temp, dir, typefiles)
+	render(w, "footer.html")
+}
+
 // render page stat all file in all folder
 func monitorListen(w http.ResponseWriter, r *http.Request) {
+	archive := viper.GetString("filetype.archivefile")
+	dir := viper.GetString("dir.works")
+
 	render(w, "header.html")
-	tableMonitoring(w, r)
+	tableMonitoring(w, r, archive, dir)
 	render(w, "footer.html")
 }
 
@@ -101,13 +108,8 @@ func htmlRang(w http.ResponseWriter, r *http.Request) (string, string, string) {
 }
 
 //render tableaudio
-func tableAudio(w http.ResponseWriter, r *http.Request) {
-	typefiles := viper.GetString("filetype.archivefile")
-
-	dir := viper.GetString("dir.works")
-	temp := viper.GetString("dir.temp")
+func tableAudio(w http.ResponseWriter, r *http.Request, temp, dir, typefiles string) {
 	date, windowform, timemodif := htmlRang(w, r)
-
 	windowS := dir + windowform
 	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >"+windowform+"  Время: "+timemodif+"</td></tr>")
 
@@ -184,11 +186,9 @@ func tableAudio(w http.ResponseWriter, r *http.Request) {
 }
 
 //render table Monitoring
-func tableMonitoring(w http.ResponseWriter, r *http.Request) {
-	date := head(w, r)
-	archive := viper.GetString("filetype.archivefile")
-	dir := viper.GetString("dir.works")
+func tableMonitoring(w http.ResponseWriter, r *http.Request, archive, dir string) {
 
+	date := head(w, r)
 	listDirArchive := listFiles(dir, archive, date, "", "datamod") //2017-03-29
 
 	for i := range listDirArchive {
