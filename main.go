@@ -63,16 +63,15 @@ func audioListen(w http.ResponseWriter, r *http.Request) {
 	dir := viper.GetString("dir.works")
 
 	date, windowform, timemodif := htmlRang(w, r)
-	dirMap := viper.GetStringMap("dirWork")
+	dirMap := viper.GetStringMapString("dirWork")
 
-	//var val string
-	//if val, ok := dirMap[windowform]; ok {
-	//	return val
+	//if val, ok := dirMap["Окно №3"]; ok {
+	//	fmt.Println(val)
 	//}
 
 	for k, v := range dirMap {
-		if k == windowform {
-			fmt.Printf("k: %s, v: %v\n", v, dirMap[k])
+		if k == "Окно №3" {
+			fmt.Println(v)
 		}
 	}
 
