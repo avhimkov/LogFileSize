@@ -45,6 +45,15 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 	render(w, "footer.html")
 }
 
+//func indexOf(word string, data map[string]string) (string) {
+//	for k, v := range data {
+//		if word == k {
+//			return v
+//		}
+//	}
+//	return v
+//}
+
 //render page audio lessen
 func audioListen(w http.ResponseWriter, r *http.Request) {
 	render(w, "header.html")
@@ -54,6 +63,18 @@ func audioListen(w http.ResponseWriter, r *http.Request) {
 	dir := viper.GetString("dir.works")
 
 	date, windowform, timemodif := htmlRang(w, r)
+	dirMap := viper.GetStringMap("dirWork")
+
+	//var val string
+	//if val, ok := dirMap[windowform]; ok {
+	//	return val
+	//}
+
+	for k, v := range dirMap {
+		if k == windowform {
+			fmt.Printf("k: %s, v: %v\n", v, dirMap[k])
+		}
+	}
 
 	tableAudio(w, r, temp, dir, typefiles, date, windowform, timemodif)
 	render(w, "footer.html")
@@ -64,9 +85,9 @@ func monitorListen(w http.ResponseWriter, r *http.Request) {
 	render(w, "header.html")
 
 	archive := viper.GetString("filetype.archivefile")
-	dir := viper.GetString("dir.works")
-	date := head(w, r)
 
+	date := head(w, r)
+	dir := viper.GetString("dir.works")
 	tableMonitoring(w, r, archive, dir, date)
 
 	render(w, "footer.html")
@@ -118,7 +139,7 @@ func tableAudio(w http.ResponseWriter, r *http.Request, temp, dir, typefiles, da
 	//date, windowform, timemodif := htmlRang(w, r)
 
 	windowS := dir + windowform
-	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >" + windowform + "  Время: " + timemodif + "</td></tr>")
+	fmt.Fprint(w, "<tr class=\"warning\"><td colspan=\"6\" >"+windowform+"  Время: "+timemodif+"</td></tr>")
 
 	if typefiles == ".zip" {
 		listDirArchive := listFiles(windowS, typefiles, date, timemodif, "list") //2017-03-29
@@ -247,35 +268,35 @@ func listFiles(rootpath string, typefile string, data string, time string, typeS
 
 			switch typeSearch {
 			case "list":
-			//list file for folder
-			if modification == data {
-				if strings.EqualFold(timetempleat, time) {
-					if filepath.Ext(path) == typefile {
-						list = append(list, path)
-					}
-				}
-			}
-			case "datamod":
-			//list file for date modification
-			for i := 0; i < numcpu; i++ {
-				go func(i int) {
-					if modification == data {
+				//list file for folder
+				if modification == data {
+					if strings.EqualFold(timetempleat, time) {
 						if filepath.Ext(path) == typefile {
 							list = append(list, path)
 						}
 					}
-				}(i)
-			}
+				}
+			case "datamod":
+				//list file for date modification
+				for i := 0; i < numcpu; i++ {
+					go func(i int) {
+						if modification == data {
+							if filepath.Ext(path) == typefile {
+								list = append(list, path)
+							}
+						}
+					}(i)
+				}
 			case "listf":
-			//list files for type file
-			for i := 0; i < numcpu; i++ {
-				go func(i int) {
-					if filepath.Ext(path) == typefile {
-						list = append(list, path)
-					}
-				}(i)
+				//list files for type file
+				for i := 0; i < numcpu; i++ {
+					go func(i int) {
+						if filepath.Ext(path) == typefile {
+							list = append(list, path)
+						}
+					}(i)
+				}
 			}
-		}
 			return nil
 		})
 	return list //, list1, list2
