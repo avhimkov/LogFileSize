@@ -14,13 +14,13 @@ import (
 	"github.com/spf13/viper"
 	"strings"
 	"io/ioutil"
-	"runtime"
-	"runtime/pprof"
+	//"runtime"
+	//"runtime/pprof"
 )
 
 func main() {
-	pprof.StartCPUProfile(os.Stdout)
-	defer pprof.StopCPUProfile()
+	//pprof.StartCPUProfile(os.Stdout)
+	//defer pprof.StopCPUProfile()
 	//load config
 	conf()
 	//clear temp folder
@@ -63,17 +63,17 @@ func audioListen(w http.ResponseWriter, r *http.Request) {
 	dir := viper.GetString("dir.works")
 
 	date, windowform, timemodif := htmlRang(w, r)
-	dirMap := viper.GetStringMapString("dirWork")
+	dirMap := viper.GetStringMapStringSlice("dirWork")
 
-	//if val, ok := dirMap["Окно №3"]; ok {
-	//	fmt.Println(val)
-	//}
-
-	for k, v := range dirMap {
-		if k == "Окно №3" {
-			fmt.Println(v)
-		}
+	if windowform, ok := dirMap[windowform]; ok {
+		fmt.Println(windowform)
 	}
+
+	//for k, v := range dirMap {
+	//	if k != windowform {
+	//		fmt.Println(k, v)
+	//	}
+	//}
 
 	tableAudio(w, r, temp, dir, typefiles, date, windowform, timemodif)
 	render(w, "footer.html")
@@ -89,13 +89,15 @@ func monitorListen(w http.ResponseWriter, r *http.Request) {
 	dir := viper.GetString("dir.works")
 	tableMonitoring(w, r, archive, dir, date)
 
-	render(w, "footer.html")
+	//render(w, "footer.html")
 }
 
 //func render template
 func render(w http.ResponseWriter, tmpl string) {
+
 	tmpl = fmt.Sprintf("templates/%s", tmpl)
 	t, err := template.ParseFiles(tmpl)
+
 	if err != nil {
 		log.Print("template parsing error: ", err)
 	}
@@ -253,8 +255,8 @@ func listFiles(rootpath string, typefile string, data string, time string, typeS
 	//list1 := make([]string, 0, 10)
 	//list2 := make([]string, 0, 10)
 
-	numcpu := runtime.NumCPU()
-	runtime.GOMAXPROCS(numcpu)
+	//numcpu := runtime.NumCPU()
+	//runtime.GOMAXPROCS(numcpu)
 
 	filepath.Walk(rootpath,
 		func(path string, info os.FileInfo, err error) error {
@@ -277,24 +279,24 @@ func listFiles(rootpath string, typefile string, data string, time string, typeS
 				}
 			case "datamod":
 				//list file for date modification
-				for i := 0; i < numcpu; i++ {
-					go func(i int) {
+				//for i := 0; i < numcpu; i++ {
+				//	go func(i int) {
 						if modification == data {
 							if filepath.Ext(path) == typefile {
 								list = append(list, path)
 							}
 						}
-					}(i)
-				}
+					//}(i)
+				//}
 			case "listf":
 				//list files for type file
-				for i := 0; i < numcpu; i++ {
-					go func(i int) {
+				//for i := 0; i < numcpu; i++ {
+				//	go func(i int) {
 						if filepath.Ext(path) == typefile {
 							list = append(list, path)
 						}
-					}(i)
-				}
+					//}(i)
+				//}
 			}
 			return nil
 		})

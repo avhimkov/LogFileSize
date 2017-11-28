@@ -1,5 +1,5 @@
 {
-  "windows": {
+  "windows":{
     "Окно №1": "Окно №1",
     "Окно №2": "Окно №2",
     "Окно №3": "Окно №3",
@@ -8,7 +8,7 @@
     "Окно №6": "Окно №6",
     "Окно №7": "Окно №7"
   },
-  "dirWork": {
+  "dirWork":{
     "Окно №1": "D:/blabla/Окно №1",
     "Окно №2": "D:/blabla/Окно №2",
     "Окно №3": "D:/blabla/Окно №3",
@@ -31,7 +31,7 @@
     "18:00": "6",
     "19:00": "7"
   },
-  "dir": {
+  "dir":{
     "temp":   "file/temp/",
     "server": "/file/",
     "works":  "D:/blabla/"
@@ -39,7 +39,7 @@
   "size":{
     "file": 1000
   },
-  "filetype": {
+  "filetype":{
     "archivefile": ".zip",
     "audiofile":   ".wav"
   }
