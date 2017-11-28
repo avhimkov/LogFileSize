@@ -14,8 +14,7 @@ import (
 	"github.com/spf13/viper"
 	"strings"
 	"io/ioutil"
-	//"runtime"
-	//"runtime/pprof"
+	"runtime"
 )
 
 func main() {
@@ -63,11 +62,10 @@ func audioListen(w http.ResponseWriter, r *http.Request) {
 	dir := viper.GetString("dir.works")
 
 	date, windowform, timemodif := htmlRang(w, r)
-	dirMap := viper.GetStringMapStringSlice("dirWork")
 
-	if windowform, ok := dirMap[windowform]; ok {
-		fmt.Println(windowform)
-	}
+	//if windowform, ok := dirMap[windowform]; ok {
+	//	fmt.Println(windowform)
+	//}
 
 	//for k, v := range dirMap {
 	//	if k != windowform {
@@ -255,8 +253,8 @@ func listFiles(rootpath string, typefile string, data string, time string, typeS
 	//list1 := make([]string, 0, 10)
 	//list2 := make([]string, 0, 10)
 
-	//numcpu := runtime.NumCPU()
-	//runtime.GOMAXPROCS(numcpu)
+	numcpu := runtime.NumCPU()
+	runtime.GOMAXPROCS(numcpu)
 
 	filepath.Walk(rootpath,
 		func(path string, info os.FileInfo, err error) error {
@@ -279,24 +277,24 @@ func listFiles(rootpath string, typefile string, data string, time string, typeS
 				}
 			case "datamod":
 				//list file for date modification
-				//for i := 0; i < numcpu; i++ {
-				//	go func(i int) {
+				for i := 0; i < numcpu; i++ {
+					go func(i int) {
 						if modification == data {
 							if filepath.Ext(path) == typefile {
 								list = append(list, path)
 							}
 						}
-					//}(i)
-				//}
+					}(i)
+				}
 			case "listf":
 				//list files for type file
-				//for i := 0; i < numcpu; i++ {
-				//	go func(i int) {
+				for i := 0; i < numcpu; i++ {
+					go func(i int) {
 						if filepath.Ext(path) == typefile {
 							list = append(list, path)
 						}
-					//}(i)
-				//}
+					}(i)
+				}
 			}
 			return nil
 		})
