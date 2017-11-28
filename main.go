@@ -33,8 +33,10 @@ func conf() {
 	viper.SetConfigType("json")
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
-	err := viper.ReadInConfig()
-	checkErr(err)
+	//err := viper.ReadInConfig()
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Error reading config file, %s", err)
+	}
 }
 
 // render page stat all file in all folder
@@ -44,15 +46,6 @@ func ShowStat(w http.ResponseWriter, r *http.Request) {
 	render(w, "footer.html")
 }
 
-//func indexOf(word string, data map[string]string) (string) {
-//	for k, v := range data {
-//		if word == k {
-//			return v
-//		}
-//	}
-//	return v
-//}
-
 //render page audio lessen
 func audioListen(w http.ResponseWriter, r *http.Request) {
 	render(w, "header.html")
@@ -60,18 +53,7 @@ func audioListen(w http.ResponseWriter, r *http.Request) {
 	typefiles := viper.GetString("filetype.archivefile")
 	temp := viper.GetString("dir.temp")
 	dir := viper.GetString("dir.works")
-
 	date, windowform, timemodif := htmlRang(w, r)
-
-	//if windowform, ok := dirMap[windowform]; ok {
-	//	fmt.Println(windowform)
-	//}
-
-	//for k, v := range dirMap {
-	//	if k != windowform {
-	//		fmt.Println(k, v)
-	//	}
-	//}
 
 	tableAudio(w, r, temp, dir, typefiles, date, windowform, timemodif)
 	render(w, "footer.html")
@@ -87,7 +69,7 @@ func monitorListen(w http.ResponseWriter, r *http.Request) {
 	dir := viper.GetString("dir.works")
 	tableMonitoring(w, r, archive, dir, date)
 
-	//render(w, "footer.html")
+	render(w, "footer.html")
 }
 
 //func render template
