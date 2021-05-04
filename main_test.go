@@ -1,12 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"testing"
 	"time"
-	"net/http/httptest"
-	"fmt"
 )
 
 func Test_render(t *testing.T) {
@@ -21,8 +21,8 @@ func Test_render(t *testing.T) {
 		name string
 		args args
 	}{
-		{"tableMonitoring", args{w: rr, tmpl:"header.html"}},
-		{"tableMonitoring", args{w: rr, tmpl:"footer.html"}},
+		{"tableMonitoring", args{w: rr, tmpl: "header.html"}},
+		{"tableMonitoring", args{w: rr, tmpl: "footer.html"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -47,7 +47,7 @@ func Test_head(t *testing.T) {
 		args args
 		want string
 	}{
-		{name: "tableMonitoring",  args: args{w: rr, r: req}, want:""},
+		{name: "tableMonitoring", args: args{w: rr, r: req}, want: ""},
 		//{name: "tableMonitoring",  args: args{w: rr, r: req}, want:"2017-03-03"},
 	}
 	for _, tt := range tests {
@@ -75,7 +75,7 @@ func Test_htmlRang(t *testing.T) {
 		want1 string
 		want2 string
 	}{
-		{"tableMonitoring", args{w: rr, r: req}, "","", ""},
+		{"tableMonitoring", args{w: rr, r: req}, "", "", ""},
 		//{"tableMonitoring", args{w: rr, r: req}, "2017-03-03","Окно №3", "3"},
 	}
 	for _, tt := range tests {
@@ -135,7 +135,7 @@ func Test_htmlRang(t *testing.T) {
 //	}
 //}
 
-func Test_listFiles(t *testing.T) {
+/* func Test_listFiles(t *testing.T) {
 	type args struct {
 		rootpath string
 		typefile string
@@ -167,7 +167,7 @@ func Test_listFiles(t *testing.T) {
 		})
 	}
 }
-
+*/
 func TestConvertSize(t *testing.T) {
 	type args struct {
 		size int64
@@ -235,7 +235,7 @@ func TestSizeFile(t *testing.T) {
 		want  string
 		want1 int64
 	}{
-		{"Size", args{"D:/blabla/Окно №3/25_20161102-00139_02-11-2016_19-28.zip"},"7 MB", 7467273},
+		{"Size", args{"D:/blabla/Окно №3/25_20161102-00139_02-11-2016_19-28.zip"}, "7 MB", 7467273},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
